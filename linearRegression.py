@@ -36,9 +36,10 @@ class LinearRegression:
     def predict(self, x, theta_hat):
         return self.__add_intercept(x) @ theta_hat
 
-    def kfold(self, k=10):
+    def kfold(self, k=10, seed=None):
         # Set seed for repeatibility.
-        # rand.seed(1)
+        if seed is not None:
+            rand.seed(seed)
         # Randomize order of indicies
         rand_indicies = rand.sample(range(self.n), k=self.n)
         # Unecessary but gets the buckets as similar a size as possible
@@ -97,4 +98,4 @@ if __name__ == "__main__":
 
     print(lg.mean_squared_error(x, y, theta_hat))
 
-    print(lg.kfold())
+    print(lg.kfold(seed=1))
