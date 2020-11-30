@@ -1,0 +1,6 @@
+.vscode
+**/ppbtree
+
+**/*.csv
+
+**/__pycache__
