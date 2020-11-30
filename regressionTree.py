@@ -286,7 +286,7 @@ class RegressionTree:
 
 def load_data(filename):
     data = np.loadtxt(filename,skiprows=1,delimiter=',')
-    X,y = data[:, 0:5], data[:,-1]
+    X,y = data[:, 0:5], data[:,5]
     return X,y
 
 def regressionTree(filename,depth =5, printTree = True):
@@ -303,4 +303,7 @@ def regressionTree(filename,depth =5, printTree = True):
     if printTree == True:
         print(tree)
     return tree
+
+if __name__ == "__main__":
+    regTree = regressionTree('Marine_Clean.csv', 8)
 
