@@ -10,8 +10,8 @@ The study of microplastic pollution is still in its infancy, and not much is und
 
 
 ## Datasets
-We select the data from .  The dataset contains sampling date, sampling latitude, sampling longitude, sea surface temperature, Sample_Volume, Total Microplastic Pieces and Average Microplastic Pieces.  In this project, we select sampling date, sampling latitude, sampling longitude and sea surface temperature as indepedent variables and Total Microplastic Pieces as dependent variable. (Marine_Clean.csv)
-We also generate testing datasets. We choose several samples across 10 different marine areas in the earth for the microplastic content prediction based on three different models. These areas include North Atlantic Ocean, Caribbean Sea, West Pacific Ocean, North Pacific Ocean and Central Pacific Ocean. The predicted results will be compared and evaluated in our models. (TestCase.csv)
+*  We select the data from .  The dataset contains sampling date, sampling latitude, sampling longitude, sea surface temperature, Sample_Volume, Total Microplastic Pieces and Average Microplastic Pieces.  In this project, we select sampling date, sampling latitude, sampling longitude and sea surface temperature as indepedent variables and Total Microplastic Pieces as dependent variable. (Marine_Clean.csv)
+* We generate testing datasets for testing of models. We choose several samples across 10 different marine areas in the earth for the microplastic content prediction based on three different models. These areas include North Atlantic Ocean, Caribbean Sea, West Pacific Ocean, North Pacific Ocean and Central Pacific Ocean. The predicted results will be compared and evaluated in our models. (TestCase.csv)
 
 ## Datasets Accessibility
 Please contact authors to get access to related csv files.
