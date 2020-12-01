@@ -178,6 +178,16 @@ class RegressionTree:
         self.depth = depth
         self.get_rules()
 
+    def toString(decisionTree, indent=''):
+        if decisionTree.depth == 1:  # leaf node
+            sort_list = [[k, v] for k, v in
+                         sorted(decisionTree.results.items(), key=lambda item: item[1], reverse=True)]
+            best = sort_list[0]
+            # print('best is ',best)
+            return 'return ' + str(best[0])
+        else:
+            return
+
     # when there is only one vector can be predicted
     def predict_one(self, row: ndarray) -> float:
         node = self.root
