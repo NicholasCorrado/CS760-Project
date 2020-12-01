@@ -8,9 +8,7 @@
 from copy import copy
 import numpy as np
 from numpy import ndarray
-from itertools import chain
 from numpy.random import choice, seed
-from random import random
 import matplotlib.pyplot as plt
 
 class Node:
@@ -275,26 +273,110 @@ class RegressionTree:
 
         return node.avg
 
+    def predict(self, data: ndarray) -> ndarray:
+        """Get the prediction of label.
+
+        Arguments:
+            data {ndarray} -- Testing data.
+
+        Returns:
+            ndarray -- Prediction of label.
+        """
+
+        return np.apply_along_axis(self.predict_one, 1, data)
+
 def load_data(filename):
     data = np.loadtxt(filename,skiprows=1,delimiter=',')
     X,y = data[:, 0:4], data[:,5]
     return X,y
 
-def regressionTree(filename,depth =5, printTree = True):
+def regressionTreeConstruct(filename,depth = 8, split=False,printTree = True):
     """Tesing the performance of RegressionTree
     """
     print("Tesing the performance of RegressionTree...")
     # Load data
-    data_train, label_train = load_data(filename)
+    if split == False:
+        data_train, label_train = load_data(filename)
+        data_test = None
+        label_test = None
+    else:
+        X, y = load_data(filename)
+        data_train, data_test, label_train, label_test = train_test_split(
+            X, y, random_state=200)
     # Train model
     tree = RegressionTree()
-    print(data_train.shape)
     tree.fit(data=data_train, label=label_train, max_depth=depth)
     # Show rules
     if printTree == True:
         print(tree)
     return tree
 
+def train_test_split(data, label=None, prob=0.95, random_state=None):
+    # Set random state.
+    if random_state is not None:
+        seed(random_state)
+
+    # Split data
+    n_rows, _ = data.shape
+    k = int(n_rows * prob)
+    train_indexes = choice(range(n_rows), size=k, replace=False)
+    test_indexes = np.array([i for i in range(n_rows) if i not in train_indexes])
+    data_train = data[train_indexes]
+    data_test = data[test_indexes]
+
+    # Split label.
+    if label is not None:
+        label_train = label[train_indexes]
+        label_test = label[test_indexes]
+        ret = (data_train, data_test, label_train, label_test)
+    else:
+        ret = (data_train, data_test)
+
+    # Cancel random state.
+    if random_state is not None:
+        seed(None)
+    return ret
+
+def calGoodnessFit(reg, X, y):
+    if isinstance(y, list):
+        y = np.array(y)
+    y_hat = reg.predict(X)
+    if isinstance(y_hat, list):
+        y_hat = np.array(y_hat)
+    sse = ((y - y_hat) ** 2).mean()
+    sst = y.var()
+    r2 = 1 - sse / sst
+    return r2
+
+def _evalTree(filename,maxdepth):
+    X, y = load_data(filename)
+    data_train, data_test, y_train, y_test = train_test_split(
+        X, y, random_state=200)
+    regTree = regressionTreeConstruct('Marine_Clean.csv', depth = maxdepth,split=True, printTree = False)
+    r2_train = calGoodnessFit(regTree, data_train, y_train)
+    r2_test = calGoodnessFit(regTree,data_test,y_test)
+    print('At maxdepth %d, the goodness of fit for training data is %.2f' % (maxdepth,r2_train))
+    print('At maxdepth %d, the goodness of fit for resting data is %.2f' % (maxdepth,r2_test))
+    return r2_train, r2_test
+
+def evalTree(filename):
+    x1,y1 = _evalTree(filename,7)
+    x2,y2 = _evalTree(filename,8)
+    x3,y3 = _evalTree(filename,9)
+    x4,y4 = _evalTree(filename,10)
+    x5,y5 = _evalTree(filename,11)
+    x6,y6 = _evalTree(filename,12)
+
+    depth = [7,8,9,10,11,12]
+    r2_train = [x1,x2,x3,x4,x5,x6]
+    r2_test = [y1,y2,y3,y4,y5,y6]
+    plt.plot(depth, r2_train, marker='o', label = 'training fitness', markerfacecolor='blue', markersize=12, color='skyblue', linewidth=4)
+    plt.plot(depth, r2_test, marker='o', label = 'testing fitness', markerfacecolor='red', markersize=12, color='orange', linewidth=4)
+    plt.legend(loc="upper left")
+    plt.xlabel("Max Depth of Regression Tree")
+    plt.ylabel("Goodness of Fitness (R2)")
+    plt.show()
+    return
 def testCase(filename,tree):
     predictions = []
     data = np.loadtxt(filename, skiprows=1, delimiter=',')
@@ -314,5 +396,9 @@ def testCase(filename,tree):
     return predictions
 
 if __name__ == "__main__":
-    regTree = regressionTree('Marine_Clean.csv', 12)
+    regTree = regressionTreeConstruct('Marine_Clean.csv', 10)
+
+    evalTree('Marine_Clean.csv')
+
     predictions = testCase('TestCase.csv',regTree)
+
