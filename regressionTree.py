@@ -9,9 +9,9 @@ from copy import copy
 import numpy as np
 from numpy import ndarray
 from itertools import chain
-import numpy as np
 from numpy.random import choice, seed
 from random import random
+import matplotlib.pyplot as plt
 
 class Node:
     """Node class to build tree leaves.
@@ -275,18 +275,8 @@ class RegressionTree:
 
         return node.avg
 
-    def predict(self, data: ndarray) -> ndarray:
-        """Get the prediction of label.
-        Arguments:
-            data {ndarray} -- Testing data.
-        Returns:
-            ndarray -- Prediction of label.
-        """
-        return np.apply_along_axis(self.predict_one, 1, data)
-
 def load_data(filename):
     data = np.loadtxt(filename,skiprows=1,delimiter=',')
-    print(data.shape)
     X,y = data[:, 0:4], data[:,5]
     return X,y
 
@@ -305,14 +295,24 @@ def regressionTree(filename,depth =5, printTree = True):
         print(tree)
     return tree
 
-if __name__ == "__main__":
-    regTree = regressionTree('Marine_Clean.csv', 5)
-    test1 = [1.44E+12,73.62,-81.36,0]
-    print(regTree.predict_one(test1))
-    test2 = [1.44E+12,73.62611667,-81.36758333,0]
-    print(regTree.predict_one(test2))
-    test3 = [1.44E+12,73.6265,-81.36286667,0]
-    print(regTree.predict_one(test3))
-    test4 = [1.42E+12,26.39,-16.05944444,0]
-    print(regTree.predict_one(test4))
+def testCase(filename,tree):
+    predictions = []
+    data = np.loadtxt(filename, skiprows=1, delimiter=',')
+    X,y = data[:, 0:4],data[:,-1]
+    x_list = list(X)
+    for x in x_list:
+        predictions.append(tree.predict_one(x))
+    x_axis = []
+    for x in range(len(predictions)):
+        x_axis.append(x+1)
+    plt.plot(x_axis,predictions,'ro',label='prediction')
+    plt.plot(x_axis,y,'bs',label='actual')
+    plt.legend(loc="upper left")
+    plt.xlabel("Sample")
+    plt.ylabel("Total Microplastic Pieces")
+    plt.show()
+    return predictions
 
+if __name__ == "__main__":
+    regTree = regressionTree('Marine_Clean.csv', 12)
+    predictions = testCase('TestCase.csv',regTree)
