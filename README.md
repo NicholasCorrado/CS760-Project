@@ -6,7 +6,7 @@ Python 3
 
 ## Introduction
 
-The study of microplastic pollution is still in its infancy, and not much is understood surrounding itsimpacts, hazards, and risks to the environment and human health.  Growing concern among researchershas prompted extensive data collection.Using this data, we seek to predict the amount of microplasticpollution in marine and freshwater systems globally.  We use three machine learning models: linear regression,decision trees, and nearest neighbors models to predict.
+*  The study of microplastic pollution is still in its infancy, and not much is understood surrounding itsimpacts, hazards, and risks to the environment and human health.  Growing concern among researchershas prompted extensive data collection.Using this data, we seek to predict the amount of microplasticpollution in marine and freshwater systems globally.  We use three machine learning models: linear regression,decision trees, and nearest neighbors models to predict.
 
 
 ## Datasets
