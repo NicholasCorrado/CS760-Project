@@ -6,10 +6,7 @@ def load():
     data = np.loadtxt(
             "C:\\Nicholas\\Graduate\\Courses\\cs760\\project\\Marine_Clean_no_missing_values.csv", 
             delimiter=',', usecols=(0,1,2,3,4,5), skiprows=1)
-    np.set_printoptions(suppress=True)
-
-    np.random.shuffle(data)
-#    data = data[:6]
+    
     # Normalize features and target
     ranges = [np.max(col)-np.min(col) for col in data.T]
     mins = [np.min(col) for col in data.T]
@@ -38,7 +35,7 @@ def distance_matrix(X):
     distances = np.zeros(shape=(n,n))
 
     for i in range(n):
-        for j in range(i,n):
+        for j in range(n):
             distances[i, j] = d(X[i], X[j])
             
     return distances
@@ -70,7 +67,7 @@ def k_fold_validation(D, X, Y):
 
     subset_boundaries = [subset_size*k for k in range(n_subsets+1)]
     subset_boundaries[-1] = n #adjust last index
-    print(D,"\n")
+
     for j in range(len(Ks)):
         k = Ks[j]
         loss = 0
@@ -78,19 +75,10 @@ def k_fold_validation(D, X, Y):
             start = subset_boundaries[i]
             stop = subset_boundaries[i+1]
         
-#            Dsub = D[start:stop, :]
-#            if n_subsets > 1:
-#                Dsub = np.delete(Dsub, slice(start, stop), axis=1)
-                
-                
-            t = D[start:stop, stop:]
+            Dsub = D[start:stop, :]
             if n_subsets > 1:
-                t2 = D[start:stop,:start]
-                t = np.hstack((t2,t)) 
+                Dsub = np.delete(Dsub, slice(start, stop), axis=1)
                 
-#            print(Dsub)
-            Dsub=t
-#            print(t,"\n")
             loss += compute_loss(Dsub, Y, k, start)
         losses[j] = loss/n_subsets
             
