@@ -4,89 +4,24 @@ import matplotlib.pyplot as plt
 def load():
     
     data = np.loadtxt(
-            "C:\\Nicholas\\Graduate\\Courses\\cs760\\project\\Marine_Clean.csv", 
-            delimiter=',', usecols=(1,2,4,6), skiprows=1)
-    
-    # The data is currently sorted by pieces/L. Shuffling the data now will 
-    # help us whenever we do k-fold validation.
+            "C:\\Nicholas\\Graduate\\Courses\\cs760\\project\\Marine_Clean_no_missing_values.csv", 
+            delimiter=',', usecols=(0,1,2,3,4,5), skiprows=1)
+    np.set_printoptions(suppress=True)
+
     np.random.shuffle(data)
-    #data = data[:100]
-    
+#    data = data[:6]
     # Normalize features and target
     ranges = [np.max(col)-np.min(col) for col in data.T]
-    data = np.array([data.T[i]/ranges[i] for i in range(len(data.T))]).T
+    mins = [np.min(col) for col in data.T]
 
-    Xdata = data[:,:3]
-    Ydata = data[:,3]
+    data = np.array([(data.T[i]-mins[i])/ranges[i] for i in range(len(data.T))]).T
     
-    return Xdata, Ydata
+    return data
     
 # Distance function: l1 norm
 def d(x1, x2):
     return np.linalg.norm(x1 - x2, 1)
 
-# Output an estimate of pieces/L using an average of the k nearest neighbors.
-def knn(x, K,  X, Y):
-    
-    n = len(X)
-    distances = np.zeros(len(X))
-
-    for j in range(n):
-    
-        distances[j] = d(x, X[j])
-
-    sorted_indices = np.argsort(distances)
-    knn_indices = sorted_indices[:K]
-    
-    s = np.sum([Y[i] for i in knn_indices])
-    return s/K
-    
-# Compute the loss for a data set using a test data set
-def compute_loss(K, X, Y, Xtest, Ytest):
-    loss = 0
-
-    for x,y in zip(Xtest,Ytest):
-        loss += (knn(x, K, X, Y)-y)**2
-            
-    return loss
-
-def k_fold_validation(Xdata, Ydata, N_folds):
-    
-    Ks = [1,5,10,15,20,25,30,35,40,45,50,60,70,80,100,150,200]
-    #Ks = [1,2]
-    losses = np.zeros(len(Ks))
-    
-    N = len(Ydata)
-
-    subset_size = int(np.around(len(Xdata)/N_folds))
-    
-    Xj = [Xdata[i:i + subset_size] for i in range(0, N, subset_size)]
-    Yj = [Ydata[i:i + subset_size] for i in range(0, N, subset_size)]
-    
-    for s in range(len(Ks)):
-        k = Ks[s]
-        print("computing loss for k =", k)
-        loss = 0
-        for i in range(N_folds):
-    
-            if i == 0:
-                X = Xj[1]
-                Y = Yj[1]
-            else:
-                X = Xj[0]
-                Y = Yj[0]
-            for j in range(1, N_folds):
-                if (i != j):
-                    X = np.concatenate((X, Xj[j]))
-                    Y = np.concatenate((Y, Yj[j]))
-                
-    
-            loss += compute_loss(k, X, Y, Xj[i], Yj[i])
-    
-        losses[s] = loss/N_folds
-        #print("avg loss for k =",k, loss/N_folds)
-        
-    return Ks, losses
 
 def plot(x, y):
     
@@ -95,11 +30,90 @@ def plot(x, y):
     plt.ylabel("average loss")
     plt.xlabel("k")
     plt.title("kNN average loss vs. k")
+    
+      
+def distance_matrix(X):
+    
+    n = len(X)
+    distances = np.zeros(shape=(n,n))
+
+    for i in range(n):
+        for j in range(i,n):
+            distances[i, j] = d(X[i], X[j])
+            
+    return distances
+
+def compute_loss(D, Y, K, offset):
+    
+    sorted_indices = np.argsort(D, axis=1)
+    knn_indices = sorted_indices[:,:K]
+    
+    loss = 0
+    
+    for i in range(len(knn_indices)):
+        indices = knn_indices[i]
+        yhat = np.average([Y[j] for j in indices])
+        y = Y[i+offset]
+        loss += (yhat-y)**2
+    return loss
+
+
+def k_fold_validation(D, X, Y):
+    
+    n = len(X)
+    n_subsets = 10
+    
+    Ks = np.arange(5,200, 5)
+    losses = np.zeros(len(Ks))
+    
+    subset_size = int(np.around(n/n_subsets))
+
+    subset_boundaries = [subset_size*k for k in range(n_subsets+1)]
+    subset_boundaries[-1] = n #adjust last index
+    print(D,"\n")
+    for j in range(len(Ks)):
+        k = Ks[j]
+        loss = 0
+        for i in range(n_subsets):
+            start = subset_boundaries[i]
+            stop = subset_boundaries[i+1]
+        
+#            Dsub = D[start:stop, :]
+#            if n_subsets > 1:
+#                Dsub = np.delete(Dsub, slice(start, stop), axis=1)
+                
+                
+            t = D[start:stop, stop:]
+            if n_subsets > 1:
+                t2 = D[start:stop,:start]
+                t = np.hstack((t2,t)) 
+                
+#            print(Dsub)
+            Dsub=t
+#            print(t,"\n")
+            loss += compute_loss(Dsub, Y, k, start)
+        losses[j] = loss/n_subsets
+            
+    return Ks, losses
+    
 
 if __name__ == "__main__":
-    X, Y = load()
-    Ks, losses = k_fold_validation(X, Y, 10)
-    plot(Ks, losses)
-    #print(Ks)
-    #print(losses)   
+    data = load()
+
+    n_trials = 5
+    all_losses = []
     
+    for i in range(n_trials):
+        print("running trial", i+1,"...")
+        # shuffle data so that each trial of k-fold validation produces
+        # different data subsets.
+        np.random.shuffle(data)
+        X = data[:,:-1]
+        Y = data[:,-1]
+        #@TODO: avoid recomputing distance matrix for each trial.  
+        D = distance_matrix(X)
+        Ks, losses = k_fold_validation(D,X,Y)
+        all_losses.append(losses)
+       
+    avg_losses = np.average(all_losses, axis=0)
+    plot(Ks, avg_losses)
