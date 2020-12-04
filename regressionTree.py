@@ -187,7 +187,6 @@ class RegressionTree:
             return 'return ' + str(best[0])
         else:
             return
-
     # when there is only one vector can be predicted
     def predict_one(self, row: ndarray) -> float:
         node = self.root
@@ -211,7 +210,7 @@ def load_data(filename):
 def regressionTreeConstruct(filename,depth = 8, split=False,printTree = True):
     """Tesing the performance of RegressionTree
     """
-    print("Tesing the performance of RegressionTree...")
+    # print("Tesing the performance of RegressionTree...")
     # Load data
     if split == False:
         data_train, label_train = load_data(filename)
@@ -262,26 +261,26 @@ def calGoodnessFit(reg, X, y):
     sse = ((y - y_hat) ** 2).mean()
     sst = y.var()
     r2 = 1 - sse / sst
-    return r2
+    return r2,sse,sst
 
 def _evalTree(filename,maxdepth):
     X, y = load_data(filename)
     data_train, data_test, y_train, y_test = train_test_split(
         X, y, random_state=200)
     regTree = regressionTreeConstruct('Marine_Clean.csv', depth = maxdepth,split=True, printTree = False)
-    r2_train = calGoodnessFit(regTree, data_train, y_train)
-    r2_test = calGoodnessFit(regTree,data_test,y_test)
-    print('At maxdepth %d, the goodness of fit for training data is %.2f' % (maxdepth,r2_train))
-    print('At maxdepth %d, the goodness of fit for resting data is %.2f' % (maxdepth,r2_test))
-    return r2_train, r2_test
+    r2_train, sse_train, sst_train = calGoodnessFit(regTree, data_train, y_train)
+    r2_test, sse_test, sst_test = calGoodnessFit(regTree,data_test,y_test)
+    # print('At maxdepth %d, the goodness of fit for training data is %.2f' % (maxdepth,r2_train))
+    # print('At maxdepth %d, the goodness of fit for resting data is %.2f' % (maxdepth,r2_test))
+    return r2_train, r2_test, sse_test
 
 def evalTree(filename):
-    x1,y1 = _evalTree(filename,7)
-    x2,y2 = _evalTree(filename,8)
-    x3,y3 = _evalTree(filename,9)
-    x4,y4 = _evalTree(filename,10)
-    x5,y5 = _evalTree(filename,11)
-    x6,y6 = _evalTree(filename,12)
+    x1,y1,sse1 = _evalTree(filename,7)
+    x2,y2,sse2 = _evalTree(filename,8)
+    x3,y3, sse3 = _evalTree(filename,9)
+    x4,y4, sse4 = _evalTree(filename,10)
+    x5,y5, sse5 = _evalTree(filename,11)
+    x6,y6, sse6 = _evalTree(filename,12)
 
     depth = [7,8,9,10,11,12]
     r2_train = [x1,x2,x3,x4,x5,x6]
@@ -292,7 +291,17 @@ def evalTree(filename):
     plt.xlabel("Max Depth of Regression Tree")
     plt.ylabel("Goodness of Fitness (R2)")
     plt.show()
-    return
+    return _evalTree(filename,10)
+
+def calMse(y, y_bar):
+    summation = 0  # variable to store the summation of differences
+    n = len(y)  # finding total number of items in list
+    for i in range(0, n):  # looping through each element of the list
+        difference = y[i] - y_bar[i]  # finding the difference between observed and predicted value
+        squared_difference = difference ** 2  # taking square of the differene
+        summation = summation + squared_difference  # taking a sum of all the differences
+    MSE = summation / n  # dividing summation by total values to obtain average
+    return MSE
 
 def testCase(filename,tree):
     predictions = []
@@ -310,12 +319,18 @@ def testCase(filename,tree):
     plt.xlabel("Sample")
     plt.ylabel("Total Microplastic Pieces")
     plt.show()
-    return predictions
+    mse_test = calMse(y,predictions)
+    return predictions, mse_test
 
 if __name__ == "__main__":
     # construct of regression tree based on marine data
     regTree = regressionTreeConstruct('Marine_Clean.csv', 10)
+
     # evalTree to check all possible tree depth, and choose the best depth
-    evalTree('Marine_Clean.csv')
+    r2_train, r2_test , MSE_train = evalTree('Marine_Clean.csv')
+    print("r2 goodness of fit is %.2f" %r2_train)
+    print("MSE for training set is %.2f" %MSE_train)
+
     # can use testCaseFunction to do prediction based on previously tree, and plot the predictions
-    predictions = testCase('TestCase.csv',regTree)
+    predictions, MSE_test = testCase('TestCase.csv',regTree)
+    print("MSE for testing set is %.2f" % MSE_test)
