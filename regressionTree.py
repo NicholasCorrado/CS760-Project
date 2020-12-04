@@ -205,7 +205,7 @@ class RegressionTree:
 
 def load_data(filename):
     data = np.loadtxt(filename,skiprows=1,delimiter=',')
-    X,y = data[:, 0:4], data[:,5]
+    X,y = data[:, 0:5], data[:,5]
     return X,y
 
 def regressionTreeConstruct(filename,depth = 8, split=False,printTree = True):
@@ -297,7 +297,7 @@ def evalTree(filename):
 def testCase(filename,tree):
     predictions = []
     data = np.loadtxt(filename, skiprows=1, delimiter=',')
-    X,y = data[:, 0:4],data[:,-1]
+    X,y = data[:, 0:5],data[:,5]
     x_list = list(X)
     for x in x_list:
         predictions.append(tree.predict_one(x))
@@ -315,10 +315,7 @@ def testCase(filename,tree):
 if __name__ == "__main__":
     # construct of regression tree based on marine data
     regTree = regressionTreeConstruct('Marine_Clean.csv', 10)
-
     # evalTree to check all possible tree depth, and choose the best depth
     evalTree('Marine_Clean.csv')
-
     # can use testCaseFunction to do prediction based on previously tree, and plot the predictions
     predictions = testCase('TestCase.csv',regTree)
-
