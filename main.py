@@ -3,10 +3,12 @@ from linearRegression import *
 from regressionTree import *
 
 
-if __name__ == "__main__":    
-    # construct of regression tree based on marine data
+if __name__ == "__main__":
+    # Linear Regression
+
+    # Regression Tree
+    print('Generating Regression Tree')
     regTree = regressionTreeConstruct('Marine_Clean.csv', 10)
-    print('--------------------------------------------------')
     # evalTree to check all possible tree depth, and choose the best depth
     evalTree('Marine_Clean.csv')
     MSE_train = getTreeMSE('Marine_Clean.csv',8)
