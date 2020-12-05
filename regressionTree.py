@@ -263,11 +263,11 @@ def calGoodnessFit(reg, X, y):
     r2 = 1 - sse / sst
     return r2,sse,sst
 
-def _evalTree(filename,maxdepth):
+def _evalTree(filename,maxdepth,random_state):
     X, y = load_data(filename)
     data_train, data_test, y_train, y_test = train_test_split(
-        X, y, random_state=maxdepth*10)
-    regTree = regressionTreeConstruct('Marine_Clean.csv', depth = maxdepth,split=True, printTree = False,random_state = maxdepth*10)
+        X, y, random_state=random_state)
+    regTree = regressionTreeConstruct('Marine_Clean.csv', depth = maxdepth,split=True, printTree = False,random_state = random_state)
     r2_train, sse_train, sst_train = calGoodnessFit(regTree, data_train, y_train)
     r2_test, sse_test, sst_test = calGoodnessFit(regTree,data_test,y_test)
     # print('At maxdepth %d, the goodness of fit for training data is %.2f' % (maxdepth,r2_train))
@@ -288,7 +288,7 @@ def evalTree(filename):
     r2_train_list = []
     r2_test_list = []
     for depth in range(1,16):
-        r2_train,r2_test,MSE_train,MSE_test = _evalTree(filename,depth)
+        r2_train,r2_test,MSE_train,MSE_test = _evalTree(filename,depth,random_state =666)
         r2_train_list.append(r2_train)
         r2_test_list.append(r2_test)
     depth_list = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
@@ -369,3 +369,4 @@ if __name__ == "__main__":
     # can use testCaseFunction to do prediction based on previously tree, and plot the predictions
     predictions, MSE_test = testCase(test_file,regTree) # testcase(test_file_name, regressionTree)
     print("MSE for testing set is %.2f" % MSE_test)
+
