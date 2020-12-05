@@ -207,7 +207,7 @@ def load_data(filename):
     X,y = data[:, 0:5], data[:,5]
     return X,y
 
-def regressionTreeConstruct(filename,depth = 8, split=False,printTree = True,random_state =200):
+def regressionTreeConstruct(filename,depth = 8, split=False,printTree = False,random_state =200):
     """Tesing the performance of RegressionTree
     """
     # print("Tesing the performance of RegressionTree...")
@@ -355,7 +355,6 @@ def testCase(filename,tree):
 if __name__ == "__main__":
     # construct of regression tree based on marine data
     regTree = regressionTreeConstruct('Marine_Clean.csv', 10)
-    print('--------------------------------------------------')
     # evalTree to check all possible tree depth, and choose the best depth
     evalTree('Marine_Clean.csv')
     MSE_train = getTreeMSE('Marine_Clean.csv',8)
