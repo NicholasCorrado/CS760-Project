@@ -7,7 +7,7 @@ def load():
             "C:\\Nicholas\\Graduate\\Courses\\cs760\\project\\Marine_Clean_no_missing_values.csv", 
             delimiter=',', usecols=(0,1,2,3,4,5), skiprows=1)
     
-#    data = data[:200,:]
+#    data = data[:300,:]
     
     # Normalize features and target
     ranges = [np.max(col)-np.min(col) for col in data.T]
@@ -246,11 +246,13 @@ def run_test_cases(k):
         Yhat[i] = yhat
         
     plt.figure(figsize=(16,16))
-    plt.plot(Ytest)
-    plt.plot(Yhat)
-    plt.ylabel("value")
-    plt.xlabel("")
-    plt.title("asdf")
+    plt.plot(Ytest, label="true")
+    plt.plot(Yhat, label="estimated")
+    plt.ylabel("Target Value")
+    plt.xlabel("Test Vector Index")
+    plt.title("Target Estimations and True Target Values for Test Vectors")
+    plt.legend()
+    plt.show()
         
     
     
@@ -309,7 +311,6 @@ def compute_optimal_k(data):
     plt.show()
     
     k_opt = np.argmin(avg_losses)+1
-    print("Optimal k =", k_opt)
 #    print(Ks)
 #    print(avg_losses)
     
@@ -325,6 +326,7 @@ if __name__ == "__main__":
     X = data[:,:-1]
     Y = data[:,-1]
     l = compute_training_loss(k_opt, X, Y)
+    print("Optimal k =", k_opt)
     print("training loss =", l)
 
 
