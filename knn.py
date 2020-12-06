@@ -16,7 +16,6 @@ def load():
 
     data = np.array([(data.T[i]-mins[i])/ranges[i] for i in range(len(data.T))]).T
     
-    
     return data
     
 # Distance function: l2 norm
@@ -158,27 +157,33 @@ def k_fold_validation(D, X, Y):
     n = len(X)
     n_subsets = 10
     
-    Ks = np.arange(1,200, 1)
+    # an array of k values for which we want to compute losses
+    Ks = np.arange(1,200,1)
     losses = np.zeros(len(Ks))
     
     subset_size = int(np.around(n/n_subsets))
 
+    # index boundaries to partition our dataset. For example,
+    # subset_boundaries[0]=0 is the first index of the first subset, and 
+    # subset_boundaries[0]=subset_size is the last index of the first subset.
     subset_boundaries = [subset_size*k for k in range(n_subsets+1)]
-    subset_boundaries[-1] = n #adjust last index
+    subset_boundaries[-1] = n # since n is usually not divisible by subset_size
 
-    for j in range(len(Ks)):
-        k = Ks[j]
+    for i in range(len(Ks)):
+        
+        k = Ks[i]
         loss = 0
-        for i in range(n_subsets):
-            start = subset_boundaries[i]
-            stop = subset_boundaries[i+1]
+        
+        for  in range(n_subsets):
+            start = subset_boundaries[j]
+            stop = subset_boundaries[j+1]
             
+            # a block of the distance matrix containing only the distances
+            # we need to test the current subset.
             Dsub = get_block_of_distance_matrix(D, start, stop, n_subsets)
         
-
-                
             loss += compute_loss(Dsub, Y, k, start)/(stop-start)
-        losses[j] = loss/n_subsets
+        losses[i] = loss/n_subsets
             
     return Ks, losses
     
@@ -207,6 +212,7 @@ def compute_yhat(x, K, X, Y):
     for j in range(n):
         distances[j] = d(x, X[j])
 
+    # find k nearest neighbors
     sorted_indices = np.argsort(distances)
     knn_indices = sorted_indices[:K]
     
