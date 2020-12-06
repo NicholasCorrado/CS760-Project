@@ -21,6 +21,18 @@ def load():
     
 # Distance function: l2 norm
 def d(x1, x2):
+    '''
+    Compute the l2 distance between x1 and x2
+    
+    Parameters:
+    x1 : 1D array
+        a feature vector
+    x2 : 1D array
+        a feature vector
+        
+    Returns:
+    int : l2 distance between x1 and x2     
+    '''
     return np.linalg.norm(x1 - x2, 2)
 
 
@@ -38,6 +50,13 @@ def distance_matrix(X):
     '''
     Compute a distance matrix D where D[i,j] corresponds to the distance
     between X[i] and X[j]
+    
+    Parameters:
+        X : 2D array
+            all feature vectors in the dataset.
+    
+    Returns:
+    2D array : distance matrix as described above  
     '''
     
     n = len(X)
@@ -51,15 +70,21 @@ def distance_matrix(X):
 
 def compute_loss(D, Y, K, offset):
     '''
+    Compute the mean squared error loss using k 
     
     D : 2D array
-        distance matrix
+        distance matrix 
     Y : 1D array
         true target values
     K : int 
         number of neighbors used to compute our target estimate yhat
     offset : int
-        index indicating which 
+        index corresponding to the "start" index used to create the D parameter
+        (see the docstring for get_block_of_distance_matrix). This is just an 
+        implementation detail.
+        
+    Returns:
+    float : mean squared error loss 
     '''
     
     sorted_indices = np.argsort(D, axis=1)
@@ -90,6 +115,20 @@ def get_block_of_distance_matrix(D, start, stop, n_subsets):
     1 1 0 0 1 1
     0 0 0 0 0 0
     0 0 0 0 0 0
+    
+    D : 2D array
+        distance matrix 
+    start : int
+        index of the first feature vector we want to include in our matrix 
+        block
+    stop : int
+        index of the first feature vector for which we want to exclude from our
+        matrix block.
+    n_subsets : int
+        number of subsets used in k-fold validiation (fixed to 10)
+    
+    Returns:
+    2D array: a block of the inputted D matrix as specified above.
     '''
     
     Dsub = D[start:stop, :]
@@ -102,6 +141,19 @@ def get_block_of_distance_matrix(D, start, stop, n_subsets):
 def k_fold_validation(D, X, Y):
     '''
     Run 10-fold validation for all k between 1 and 200.
+    
+    Parameters:
+    
+    D : 2D array
+        distance matrix 
+    X : 2D array
+        matrix containing all feature vectors in the dataset
+    Y : 1D array
+        all true target values in the dataset
+    Returns:
+    1D int array : an array of all k values for which the loss was computed
+    1D float array: mean square error loss averaged over 10 test subsets for 
+    all values of k between 1 and 200
     '''
     n = len(X)
     n_subsets = 10
@@ -132,8 +184,10 @@ def k_fold_validation(D, X, Y):
     
 def compute_yhat(x, K, X, Y):
     '''
-    Compute the target estimate for input vector x
+    Compute the target estimate for input vector x as the average of the the 
+    true target values for the k nearest neighbors.
 
+    Parameters:
     x : 1D array
         input feature vector for which we are estimating the target
     k : int
@@ -142,6 +196,9 @@ def compute_yhat(x, K, X, Y):
         matrix containing all feature vectors in the dataset
     Y : 1D array
         all true target values in the dataset
+        
+    Returns: 
+    float: target estimate for input vector x
     '''
     
     n = len(X)
@@ -196,12 +253,16 @@ def compute_training_loss(k, X, Y):
     Compute the empircal loss on the training data. The optimal k value 
     should be used.
     
+    Parameters:
     k : int
         number of neighbors used to compute our target estimate
     X : 2D array
         matrix containing all feature vectors in the dataset
     Y : 1D array
         all true target values in the dataset
+        
+    Returns:
+    float : mean squared error loss
     '''
     n = len(X)
     
