@@ -187,7 +187,6 @@ class RegressionTree:
             return 'return ' + str(best[0])
         else:
             return
-
     # when there is only one vector can be predicted
     def predict_one(self, row: ndarray) -> float:
         node = self.root
@@ -205,13 +204,13 @@ class RegressionTree:
 
 def load_data(filename):
     data = np.loadtxt(filename,skiprows=1,delimiter=',')
-    X,y = data[:, 0:4], data[:,5]
+    X,y = data[:, 0:5], data[:,5]
     return X,y
 
-def regressionTreeConstruct(filename,depth = 8, split=False,printTree = True):
+def regressionTreeConstruct(filename,depth = 8, split=False,printTree = False,random_state =200):
     """Tesing the performance of RegressionTree
     """
-    print("Tesing the performance of RegressionTree...")
+    # print("Tesing the performance of RegressionTree...")
     # Load data
     if split == False:
         data_train, label_train = load_data(filename)
@@ -220,7 +219,7 @@ def regressionTreeConstruct(filename,depth = 8, split=False,printTree = True):
     else:
         X, y = load_data(filename)
         data_train, data_test, label_train, label_test = train_test_split(
-            X, y, random_state=200)
+            X, y, random_state=random_state)
     # Train model
     tree = RegressionTree()
     tree.fit(data=data_train, label=label_train, max_depth=depth)
@@ -229,7 +228,7 @@ def regressionTreeConstruct(filename,depth = 8, split=False,printTree = True):
         print(tree)
     return tree
 
-def train_test_split(data, label=None, prob=0.95, random_state=None):
+def train_test_split(data, label=None, prob=0.9, random_state=None):
     # Set random state.
     if random_state is not None:
         seed(random_state)
@@ -262,42 +261,86 @@ def calGoodnessFit(reg, X, y):
     sse = ((y - y_hat) ** 2).mean()
     sst = y.var()
     r2 = 1 - sse / sst
-    return r2
+    return r2,sse,sst
 
-def _evalTree(filename,maxdepth):
+def _evalTree(filename,maxdepth,random_state):
     X, y = load_data(filename)
     data_train, data_test, y_train, y_test = train_test_split(
-        X, y, random_state=200)
-    regTree = regressionTreeConstruct('Marine_Clean.csv', depth = maxdepth,split=True, printTree = False)
-    r2_train = calGoodnessFit(regTree, data_train, y_train)
-    r2_test = calGoodnessFit(regTree,data_test,y_test)
-    print('At maxdepth %d, the goodness of fit for training data is %.2f' % (maxdepth,r2_train))
-    print('At maxdepth %d, the goodness of fit for resting data is %.2f' % (maxdepth,r2_test))
-    return r2_train, r2_test
+        X, y, random_state=random_state)
+    regTree = regressionTreeConstruct(filename, depth = maxdepth,split=True, printTree = False,random_state = random_state)
+    r2_train, sse_train, sst_train = calGoodnessFit(regTree, data_train, y_train)
+    r2_test, sse_test, sst_test = calGoodnessFit(regTree,data_test,y_test)
+    # print('At maxdepth %d, the goodness of fit for training data is %.2f' % (maxdepth,r2_train))
+    # print('At maxdepth %d, the goodness of fit for resting data is %.2f' % (maxdepth,r2_test))
+    y_hat_train = []
+    x_list_train = list(data_train)
+    for x in x_list_train:
+        y_hat_train.append(regTree.predict_one(x))
+    y_hat_test = []
+    x_list_test = list(data_test)
+    for x in x_list_test:
+        y_hat_test.append(regTree.predict_one(x))
+    MSE_train = calMse(y_train, y_hat_train)
+    MSE_test = calMse(y_test, y_hat_test)
+    return r2_train, r2_test, MSE_train,MSE_test
 
 def evalTree(filename):
-    x1,y1 = _evalTree(filename,7)
-    x2,y2 = _evalTree(filename,8)
-    x3,y3 = _evalTree(filename,9)
-    x4,y4 = _evalTree(filename,10)
-    x5,y5 = _evalTree(filename,11)
-    x6,y6 = _evalTree(filename,12)
-
-    depth = [7,8,9,10,11,12]
-    r2_train = [x1,x2,x3,x4,x5,x6]
-    r2_test = [y1,y2,y3,y4,y5,y6]
-    plt.plot(depth, r2_train, marker='o', label = 'training fitness', markerfacecolor='blue', markersize=12, color='skyblue', linewidth=4)
-    plt.plot(depth, r2_test, marker='o', label = 'testing fitness', markerfacecolor='red', markersize=12, color='orange', linewidth=4)
+    r2_train_list = []
+    r2_test_list = []
+    for depth in range(1,16):
+        r2_train,r2_test,MSE_train,MSE_test = _evalTree(filename,depth,random_state =666)
+        r2_train_list.append(r2_train)
+        r2_test_list.append(r2_test)
+    depth_list = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+    plt.plot(depth_list, r2_train_list, marker='o', label = 'training fitness', markerfacecolor='blue', markersize=12, color='skyblue', linewidth=4)
+    plt.plot(depth_list, r2_test_list, marker='o', label = 'testing fitness', markerfacecolor='red', markersize=12, color='orange', linewidth=4)
     plt.legend(loc="upper left")
     plt.xlabel("Max Depth of Regression Tree")
     plt.ylabel("Goodness of Fitness (R2)")
     plt.show()
     return
 
+def getTreeR2(filename,depth):
+    r2_train, r2_test, MSE_train, MSE_test = _evalTree(filename,depth,666)
+    return r2_train,r2_test
+
+def getTreeMSE(filename,depth):
+    regTree = regressionTreeConstruct('Marine_Clean.csv', depth = depth,split=False, printTree = False,random_state = 200)
+    X, y = load_data(filename)
+    y_hat = []
+    x_list = list(X)
+    for x in x_list:
+        y_hat.append(regTree.predict_one(x))
+    MSE_train = calMse(y, y_hat)
+    return MSE_train
+
+def crossValidation(filename, kfold,opt_depth = 8):
+    mses = []
+    for k in range(kfold):
+        X, y = load_data(filename)
+        regTree = regressionTreeConstruct('Marine_Clean.csv', depth=opt_depth, split=True, printTree=False,random_state=k)
+        y_hat = []
+        x_list = list(X)
+        for x in x_list:
+            y_hat.append(regTree.predict_one(x))
+        mse_cur = calMse(y, y_hat)
+        mses.append(mse_cur)
+    return sum(mses) / len(mses)
+
+def calMse(y, y_bar):
+    summation = 0  # variable to store the summation of differences
+    n = len(y)  # finding total number of items in list
+    for i in range(0, n):  # looping through each element of the list
+        difference = y[i] - y_bar[i]  # finding the difference between observed and predicted value
+        squared_difference = difference ** 2  # taking square of the differene
+        summation = summation + squared_difference  # taking a sum of all the differences
+    MSE = summation / n  # dividing summation by total values to obtain average
+    return MSE
+
 def testCase(filename,tree):
     predictions = []
     data = np.loadtxt(filename, skiprows=1, delimiter=',')
-    X,y = data[:, 0:4],data[:,-1]
+    X,y = data[:, 0:5],data[:,5]
     x_list = list(X)
     for x in x_list:
         predictions.append(tree.predict_one(x))
@@ -310,15 +353,40 @@ def testCase(filename,tree):
     plt.xlabel("Sample")
     plt.ylabel("Total Microplastic Pieces")
     plt.show()
-    return predictions
+    mse_test = calMse(y,predictions)
+    return predictions, mse_test
+
+def predictionGoodnessOfFit(tree,filename):
+    X, y = load_data(filename)
+    r2, sse, sst = calGoodnessFit(tree, X, y)
+    return r2
 
 if __name__ == "__main__":
-    # construct of regression tree based on marine data
-    regTree = regressionTreeConstruct('Marine_Clean.csv', 10)
+    input_file ='Marine_Clean.csv'
+    test_file = 'TestCase.csv'
+    # Linear Regression
 
+    # Regression Tree
+    print("-----------------------------------------------------------------------------------")
+    print('Generating Regression Tree')
+    regTree = regressionTreeConstruct(input_file, 8) # input parameters (filename,tree max depth)
+    print("-----------------------------------------------------------------------------------")
     # evalTree to check all possible tree depth, and choose the best depth
     evalTree('Marine_Clean.csv')
+    MSE_train = getTreeMSE(input_file,8) # getTreeMSE(filename, optimized_depth)
+    print("MSE for training set is %.2f" %MSE_train)
+    ave_MSE_train = crossValidation(input_file,10)
+    print("average MSE from 10 fold cv is %.2f" %ave_MSE_train)
+    R2_train, R2_test = getTreeR2(input_file,8)
+    print("Best Model: R2 goodness of fit for trainset is %.2f" %R2_train)
+    print("Best Model: R2 goodness of fit for testset is %.2f" %R2_test)
 
     # can use testCaseFunction to do prediction based on previously tree, and plot the predictions
-    predictions = testCase('TestCase.csv',regTree)
-
+    print("-----------------------------------------------------------------------------------")
+    predictions, MSE_test = testCase(test_file,regTree) # testcase(test_file_name, regressionTree)
+    print("MSE for testing set is %.2f" % MSE_test)
+    R2_predict_training = predictionGoodnessOfFit(regTree,input_file)
+    print("R2 for training set is %.2f" % R2_predict_training)
+    R2_predict_test = predictionGoodnessOfFit(regTree,test_file)
+    print("R2 for testing set is %.2f" % R2_predict_test)
+    print("-----------------------------------------------------------------------------------")
