@@ -32,18 +32,7 @@ def d(x1, x2):
     Returns:
     int : l2 distance between x1 and x2     
     '''
-    return np.linalg.norm(x1 - x2, 2)
-
-
-def plot(x, y):
-    
-    plt.rcParams.update({'font.size': 28})
-    plt.figure(figsize=(16,16))
-    plt.plot(x, y)
-    plt.ylabel("Average Loss (averaged over 5 runs of 10-fold validation)")
-    plt.xlabel("k (number of neighbors used to predict target)")
-    plt.title("kNN Average Loss vs. k")
-    
+    return np.linalg.norm(x1 - x2, 2)    
       
 def distance_matrix(X):
     '''
@@ -174,7 +163,7 @@ def k_fold_validation(D, X, Y):
         k = Ks[i]
         loss = 0
         
-        for  in range(n_subsets):
+        for j in range(n_subsets):
             start = subset_boundaries[j]
             stop = subset_boundaries[j+1]
             
@@ -218,22 +207,34 @@ def compute_yhat(x, K, X, Y):
     
     return np.average([Y[i] for i in knn_indices])    
 
-def test(k):
+def run_test_cases(k):
+    '''
+    Compute the target estimation for our test cases.
     
+    Parameters:
+    k : int
+        number of neighbors used to compute our target estimate
+    '''
     data = np.loadtxt(
         "C:\\Nicholas\\Graduate\\Courses\\cs760\\project\\TestCase.csv", 
         delimiter=',', usecols=(0,1,2,3,4,5), skiprows=1)
     
     ranges = [np.max(col)-np.min(col) for col in data.T]
     mins = [np.min(col) for col in data.T]
+    
+    # ranges[-1] corresponds to the range of the target variable. We do not 
+    # want to normalize the target, so manually set its range to 1.
     ranges[-1] = 1
-
+    
+    # normalize test case data
     data = np.array([(data.T[i]-mins[i])/ranges[i] for i in range(len(data.T))]).T
     
     Xtest = data[:,:-1]
     Ytest = data[:,-1]
     
+    # load training data
     data = load()
+    
     X = data[:,:-1]
     Y = data[:,-1]
     
@@ -278,38 +279,51 @@ def compute_training_loss(k, X, Y):
         loss += (Y[i] - yhat)**2
         
     return loss/n
-    
 
 if __name__ == "__main__":
     data = load()
-    n = len(data)
-    print(n)
-    test(21)
     
-    X = data[:,:-1]
-    Y = data[:,-1]
-    l = compute_training_loss(28, X, Y)
-    print("training loss =", l)
-#    for k in range(1,50,5):
-#        test(k)
-
-    n_trials = 1
+    n_trials = 5
     all_losses = []
     
     for i in range(n_trials):
+        
         print("running trial", i+1,"...")
+        
         # shuffle data so that each trial of k-fold validation produces
         # different data subsets.
         np.random.shuffle(data)
         X = data[:,:-1]
         Y = data[:,-1]
+        
         #@TODO: avoid recomputing distance matrix for each trial.  
         D = distance_matrix(X)
         Ks, losses = k_fold_validation(D,X,Y)
         all_losses.append(losses)
-       
+        
     avg_losses = np.average(all_losses, axis=0)
-    plot(Ks, avg_losses)
-    print(Ks)
-    print(avg_losses)
-    print(np.argmin(avg_losses)+1)
+    plt.rcParams.update({'font.size': 28})
+    plt.figure(figsize=(16,16))
+    plt.plot(Ks, avg_losses)
+    plt.ylabel("Average Loss (averaged over 5 runs of 10-fold validation)")
+    plt.xlabel("k (number of neighbors used to predict target)")
+    plt.title("kNN Average Loss vs. k")
+    plt.show()
+    
+    k_opt = np.argmin(avg_losses)+1
+    print("Optimal k =", k_opt)
+#    print(Ks)
+#    print(avg_losses)
+    
+    run_test_cases(k_opt)
+    
+    X = data[:,:-1]
+    Y = data[:,-1]
+    l = compute_training_loss(k_opt, X, Y)
+    print("training loss =", l)
+
+
+    
+
+       
+
