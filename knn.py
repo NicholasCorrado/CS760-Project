@@ -7,7 +7,7 @@ def load():
             "C:\\Nicholas\\Graduate\\Courses\\cs760\\project\\Marine_Clean_no_missing_values.csv", 
             delimiter=',', usecols=(0,1,2,3,4,5), skiprows=1)
     
-    data = data[:200,:]
+#    data = data[:200,:]
     
     # Normalize features and target
     ranges = [np.max(col)-np.min(col) for col in data.T]
@@ -241,8 +241,7 @@ def run_test_cases(k):
     Yhat = np.zeros(len(Ytest))
     
     for i in range(len(Xtest)):
-        x = Xtest[i]
-        y = Ytest[i]        
+        x = Xtest[i]    
         yhat = compute_yhat(x, k, X, Y)
         Yhat[i] = yhat
         
@@ -280,8 +279,7 @@ def compute_training_loss(k, X, Y):
         
     return loss/n
 
-if __name__ == "__main__":
-    data = load()
+def compute_optimal_k(data):
     
     n_trials = 5
     all_losses = []
@@ -315,6 +313,13 @@ if __name__ == "__main__":
 #    print(Ks)
 #    print(avg_losses)
     
+    return k_opt
+
+
+if __name__ == "__main__":
+    data = load()
+    
+    k_opt = compute_optimal_k(data)
     run_test_cases(k_opt)
     
     X = data[:,:-1]
