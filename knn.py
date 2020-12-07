@@ -243,7 +243,7 @@ class kNN:
         Ytest = data[:,-1]
         
         # load training data
-        data = load()
+        data = self.load()
         
         X = data[:,:-1]
         Y = data[:,-1]
@@ -273,7 +273,7 @@ class kNN:
             
         
         
-    def compute_training_loss(self, k, X, Y):
+    def compute_training_loss(self, k):
         '''
         Compute the empircal loss on the training data. The optimal k value 
         should be used.
@@ -289,6 +289,10 @@ class kNN:
         Returns:
         float : mean squared error loss
         '''
+        
+        X = self.data[:,:-1]
+        Y = self.data[:,-1]
+        
         n = len(X)
         
         loss = 0
@@ -300,7 +304,7 @@ class kNN:
             
         return loss/n, r2
     
-    def compute_optimal_k(self, data):
+    def compute_optimal_k(self):
         
         n_trials = 1
         all_losses = []
@@ -311,9 +315,9 @@ class kNN:
             
             # shuffle data so that each trial of k-fold validation produces
             # different data subsets.
-            np.random.shuffle(data)
-            X = data[:,:-1]
-            Y = data[:,-1]
+            np.random.shuffle(self.data)
+            X = self.data[:,:-1]
+            Y = self.data[:,-1]
             
             #@TODO: avoid recomputing distance matrix for each trial.  
             D = self.distance_matrix(X)
@@ -323,7 +327,7 @@ class kNN:
         avg_losses = np.average(all_losses, axis=0)
         
         # compute r squared
-        Y = data[:,-1]
+        Y = self.data[:,-1]
         r2 = 1 - np.sum(avg_losses)/np.sum(Y**2)
     
         
@@ -345,14 +349,12 @@ if __name__ == "__main__":
     
     
     
-    knn = kNN(data)
+    knn = kNN("C:\\Nicholas\\Graduate\\Courses\\cs760\\project\\Marine_Clean_no_missing_values.csv")
     
-    k_opt, r2_kfold, loss_kfold = knn.compute_optimal_k(data)
+    k_opt, r2_kfold, loss_kfold = knn.compute_optimal_k()
     loss_test, r2_test = knn.run_test_cases(k_opt)
-
-    X = data[:,:-1]
-    Y = data[:,-1]
-    loss_training, r2_training = knn.compute_training_loss(k_opt, X, Y)
+    
+    loss_training, r2_training = knn.compute_training_loss(k_opt)
 
     print("Optimal k =", k_opt)
     print("avarage 10-fold validation loss =", loss_kfold)
