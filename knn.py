@@ -259,15 +259,6 @@ class kNN:
             loss += (y-yhat)**2
         
         r2 = 1 - loss/np.sum(Ytest**2)
-            
-#        plt.figure(figsize=(16,16))
-#        plt.plot(Ytest, label="true")
-#        plt.plot(Yhat, label="estimated")
-#        plt.ylabel("Target Value")
-#        plt.xlabel("Test Vector Index")
-#        plt.title("Target Estimations and True Target Values for Test Vectors")
-#        plt.legend()
-#        plt.show()
         
         return loss/n, r2, Yhat
             
@@ -337,6 +328,7 @@ class kNN:
         plt.ylabel("Average Loss (averaged over 5 runs of 10-fold validation)")
         plt.xlabel("k (number of neighbors used to predict target)")
         plt.title("kNN Average Loss vs. k")
+        plt.savefig('loss-vs-k.pdf')
         
         k_opt = np.argmin(avg_losses)+1        
         return k_opt, r2, avg_losses[k_opt-1]
