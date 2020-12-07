@@ -36,18 +36,19 @@ if __name__ == "__main__":
     
     # kNN
     knn = kNN("C:\\Nicholas\\Graduate\\Courses\\cs760\\project\\Marine_Clean_no_missing_values.csv")
-    print('Estimating optimal k for kNN regression...')
+    print('Estimating optimal k for kNN regression using 10-fold validation...\n')
     k_opt, r2_kfold, loss_kfold = knn.compute_optimal_k()
-    print('Optimal k =', k_opt)
-    print('Running 10-fold validation 5 times...')
-    loss_test, r2_test, Yhat_knn = knn.run_test_cases(k_opt)
-    print('Computing training loss')
-    loss_training, r2_training = knn.compute_training_loss(k_opt)
-
-    print("Optimal k =", k_opt)
-    print("avarage 10-fold validation loss =", loss_kfold)
+    print('\nOptimal k =', k_opt)
+    print("average 10-fold validation loss =", loss_kfold)
     print("r^2 10-fold validation =", r2_kfold)
+    print("-----------------------------------------------------------------------------------")
+    print('Computing training loss...')
+    loss_training, r2_training = knn.compute_training_loss(k_opt)
     print("training loss =", loss_training)
     print("r^2 for training set =", r2_training)
+    print("-----------------------------------------------------------------------------------")
+    loss_test, r2_test, Yhat_knn = knn.run_test_cases(k_opt)
     print("test loss =", loss_test)
     print("r^2 for test set =", r2_test)
+    print("-----------------------------------------------------------------------------------")
+
