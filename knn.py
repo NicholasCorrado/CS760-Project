@@ -7,9 +7,9 @@ class kNN:
     
     def __init__(self, path):
         
-        self.data = self.load()
+        self.data = self.__load()
         
-    def load(self):
+    def __load(self):
         
         data = np.loadtxt(
                 "C:\\Nicholas\\Graduate\\Courses\\cs760\\project\\Marine_Clean_no_missing_values.csv", 
@@ -26,7 +26,7 @@ class kNN:
         
         return data
         
-    def d(self, x1, x2):
+    def __d(self, x1, x2):
         '''
         Compute the l2 distance between x1 and x2
         
@@ -41,7 +41,7 @@ class kNN:
         '''
         return np.linalg.norm(x1 - x2, 2)
     
-    def distance_matrix(self, X):
+    def __distance_matrix(self, X):
         '''
         Compute a distance matrix D where D[i,j] corresponds to the distance
         between X[i] and X[j]
@@ -59,11 +59,11 @@ class kNN:
     
         for i in range(n):
             for j in range(n):
-                distances[i, j] = self.d(X[i], X[j])
+                distances[i, j] = self.__d(X[i], X[j])
                 
         return distances
     
-    def compute_loss(self, D, Y, K, offset):
+    def __compute_loss(self, D, Y, K, offset):
         '''
         Compute the mean squared error loss using k 
         
@@ -94,7 +94,7 @@ class kNN:
             loss += (yhat-y)**2
         return loss
     
-    def get_block_of_distance_matrix(self, D, start, stop, n_subsets):
+    def __get_block_of_distance_matrix(self, D, start, stop, n_subsets):
         '''
         Return a block/slice of the distance matrix D containing only the rows 
         from start to stop (including start, excluding stop), excluding the columns 
@@ -131,7 +131,7 @@ class kNN:
             Dsub = np.delete(Dsub, slice(start, stop), axis=1)
         return Dsub
 
-    def k_fold_validation(self, D, X, Y):
+    def __run_kfold(self, D, X, Y):
         '''
         Run 10-fold validation for all k between 1 and 200.
         
@@ -175,16 +175,16 @@ class kNN:
                 
                 # a block of the distance matrix containing only the distances
                 # we need to test the current subset.
-                Dsub = self.get_block_of_distance_matrix(D, start, stop, n_subsets)
+                Dsub = self.__get_block_of_distance_matrix(D, start, stop, n_subsets)
             
-                loss += self.compute_loss(Dsub, Y, k, start)/(stop-start)
+                loss += self.__compute_loss(Dsub, Y, k, start)/(stop-start)
             losses[i] = loss/n_subsets
     #        r2s[i] = 1 - np.sum(loss)/np.sum()
             
                 
         return Ks, losses
         
-    def compute_yhat(self, x, K, X, Y):
+    def __compute_yhat(self, x, K, X, Y):
         '''
         Compute the target estimate for input vector x as the average of the the 
         true target values for the k nearest neighbors.
@@ -207,7 +207,7 @@ class kNN:
         distances = np.zeros(len(X))
     
         for j in range(n):
-            distances[j] = self.d(x, X[j])
+            distances[j] = self.__d(x, X[j])
     
         # find k nearest neighbors
         sorted_indices = np.argsort(distances)
@@ -243,7 +243,7 @@ class kNN:
         Ytest = data[:,-1]
         
         # load training data
-        data = self.load()
+        data = self.__load()
         
         X = data[:,:-1]
         Y = data[:,-1]
@@ -254,22 +254,22 @@ class kNN:
         for i in range(n):
             x = Xtest[i]    
             y = Ytest[i]
-            yhat = self.compute_yhat(x, k, X, Y)
+            yhat = self.__compute_yhat(x, k, X, Y)
             Yhat[i] = yhat
             loss += (y-yhat)**2
         
         r2 = 1 - loss/np.sum(Ytest**2)
             
-        plt.figure(figsize=(16,16))
-        plt.plot(Ytest, label="true")
-        plt.plot(Yhat, label="estimated")
-        plt.ylabel("Target Value")
-        plt.xlabel("Test Vector Index")
-        plt.title("Target Estimations and True Target Values for Test Vectors")
-        plt.legend()
-        plt.show()
+#        plt.figure(figsize=(16,16))
+#        plt.plot(Ytest, label="true")
+#        plt.plot(Yhat, label="estimated")
+#        plt.ylabel("Target Value")
+#        plt.xlabel("Test Vector Index")
+#        plt.title("Target Estimations and True Target Values for Test Vectors")
+#        plt.legend()
+#        plt.show()
         
-        return loss/n, r2
+        return loss/n, r2, Yhat
             
         
         
@@ -297,7 +297,7 @@ class kNN:
         
         loss = 0
         for i in range(n):
-            yhat = self.compute_yhat(X[i], k, X, Y)
+            yhat = self.__compute_yhat(X[i], k, X, Y)
             loss += (Y[i] - yhat)**2
             
         r2 = 1 - loss/np.sum(Y**2)
@@ -320,8 +320,8 @@ class kNN:
             Y = self.data[:,-1]
             
             #@TODO: avoid recomputing distance matrix for each trial.  
-            D = self.distance_matrix(X)
-            Ks, losses = self.k_fold_validation(D,X,Y)
+            D = self.__distance_matrix(X)
+            Ks, losses = self.__run_kfold(D,X,Y)
             all_losses.append(losses)
             
         avg_losses = np.average(all_losses, axis=0)
@@ -337,7 +337,6 @@ class kNN:
         plt.ylabel("Average Loss (averaged over 5 runs of 10-fold validation)")
         plt.xlabel("k (number of neighbors used to predict target)")
         plt.title("kNN Average Loss vs. k")
-        plt.show()
         
         k_opt = np.argmin(avg_losses)+1        
         return k_opt, r2, avg_losses[k_opt-1]
