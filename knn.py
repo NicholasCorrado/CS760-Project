@@ -11,15 +11,14 @@ class kNN:
         
     def __load(self):
         
-        data = np.loadtxt(
-                "C:\\Nicholas\\Graduate\\Courses\\cs760\\project\\Marine_Clean_no_missing_values.csv", 
+        data = np.loadtxt("Marine_Clean.csv", 
                 delimiter=',', usecols=(0,1,2,3,4,5), skiprows=1)
         
         # Normalize features and target
         ranges = [np.max(col)-np.min(col) for col in data.T]
         mins = [np.min(col) for col in data.T]
         ranges[-1] = 1
-    
+        data[:300,:]
         data = np.array([(data.T[i]-mins[i])/ranges[i] for i in range(len(data.T))]).T
         
         return data
@@ -222,8 +221,7 @@ class kNN:
             number of neighbors used to compute our target estimate
         '''
         
-        data = np.loadtxt(
-            "C:\\Nicholas\\Graduate\\Courses\\cs760\\project\\TestCase.csv", 
+        data = np.loadtxt("TestCase.csv", 
             delimiter=',', usecols=(0,1,2,3,4,5), skiprows=1)
         
         ranges = [np.max(col)-np.min(col) for col in data.T]
