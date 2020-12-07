@@ -6,11 +6,19 @@ import scipy.stats
 
 class LinearRegression:
 
-    def __init__(self, x, y):
-        # Including intercept, shape is nxd+1
-        self.x = self.__add_intercept(x)
+    def __init__(self, x, y, bias=True):
+        if bias:
+            # Including intercept, shape is nxd+1
+            self.x = self.__add_intercept(x)
+        else:
+            # Shape is nxd
+            self.x = x
+
+        # Shape is n,
         self.y = y
+        # These are usefull
         (self.n, self.d) = self.x.shape
+        # Learn the coefficients that minimize the MSE
         self.theta_hat = self.learn()
 
     def get_theta_hat(self):
@@ -27,28 +35,14 @@ class LinearRegression:
             )
         return x
 
-    def learn(self, x=None, y=None):
-        if x is None:
-            x = self.x
-        if y is None:
-            y = self.y
+    def learn(self):
         # MSE estimation of theta_hat
-        return np.linalg.inv(x.T @ x) @ x.T @ y
+        return np.linalg.inv(self.x.T @ self.x) @ self.x.T @ self.y
 
-    def mean_squared_error(self, x=None, y=None, theta_hat=None):
-        if x is None:
-            x = self.x
-        if y is None:
-            y = self.y
-        if theta_hat is None:
-            theta_hat = self.theta_hat
-        return np.sum((y-self.predict(x, self.theta_hat))**2)/x.shape[0]
-
-    def predict(self, x, theta_hat=None):
-        if theta_hat is None:
-            theta_hat = self.theta_hat
+    def predict(self, x, bias=True):
+        if bias:
             x = self.__add_intercept(x)
-        return x @ theta_hat
+        return x @ self.theta_hat
 
     def kfold(self, k=10, seed=None):
         # Set seed for repeatibility.
@@ -76,8 +70,9 @@ class LinearRegression:
             test_x = self.x[test_bucket_indicies, :]
             test_y = self.y[test_bucket_indicies]
 
-            theta_hat = self.learn(train_x, train_y)
-            total_mse += self.mean_squared_error(test_x, test_y, theta_hat)
+            temp_model = LinearRegression(train_x, train_y, False)
+            total_mse += (sum((test_y-temp_model.predict(test_x, False))
+                              ** 2)/test_x.shape[0])
 
         return total_mse/k
 
@@ -115,12 +110,22 @@ if __name__ == "__main__":
     print("Theta hat {0}".format(lg.get_theta_hat()))
 
     print("MSE for dataset: {0}".format(
-        lg.mean_squared_error()))
+        sum((y-lg.predict(x))**2)/x.shape[0]))
 
     print("Average MSE for k=10 fold CV: {0}".format(lg.kfold(seed=1)))
 
-    significance = lg.get_significance()
+    test_data = np.genfromtxt("TestCase.csv", delimiter=",",
+                              skip_header=1)
 
+    # shape is n,
+    test_y = test_data[:, 5:6].reshape(-1)
+    # shape is nxd
+    test_x = test_data[:, :5]
+    print("Results for test cases:")
+    print(lg.predict(test_x))
+    print(sum((test_y-lg.predict(test_x))**2)/test_x.shape[0])
+
+    significance = lg.get_significance()
     features = ["Date", "Latitude", "Longitude",
                 "Water Temperature", "Sample Volume", "Bias"]
     print("Feature Significance Testing\n< 0 means insignificant, > 0 means significant.")
