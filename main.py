@@ -103,10 +103,7 @@ if __name__ == "__main__":
     loss_test, r2_test, Yhat_knn = knn.run_test_cases(k_opt)
     print("test loss =", loss_test)
     print("r^2 for test set =", r2_test)
-<<<<<<< HEAD
 	
-	
-=======
     print("-----------------------------------------------------------------------------------")
     
     # kNN predications for the test case data is stored in the variable Yhat_knn
