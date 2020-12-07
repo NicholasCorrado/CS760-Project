@@ -13,7 +13,7 @@ if __name__ == "__main__":
     print('Generating Regression Tree')
     regTree = regressionTreeConstruct(input_file, 8) # input parameters (filename,tree max depth)
     print("-----------------------------------------------------------------------------------")
-    # evalTree to check all possible tree depth, and choose the best depth
+    # # evalTree to check all possible tree depth, and choose the best depth
     evalTree('Marine_Clean.csv')
     MSE_train = getTreeMSE(input_file,8) # getTreeMSE(filename, optimized_depth)
     print("MSE for training set is %.2f" %MSE_train)
@@ -27,8 +27,9 @@ if __name__ == "__main__":
     print("-----------------------------------------------------------------------------------")
     predictions, MSE_test = testCase(test_file,regTree) # testcase(test_file_name, regressionTree)
     print("MSE for testing set is %.2f" % MSE_test)
-    R2_predict_training = predictionGoodnessOfFit(regTree,input_file)
+    R2_predict_training = predictionGoodnessOfFitForTraining(regTree,input_file)
     print("R2 for training set is %.2f" % R2_predict_training)
-    R2_predict_test = predictionGoodnessOfFit(regTree,test_file)
+    R2_predict_test = predictionGoodnessOfFitForTesting(regTree,test_file)
     print("R2 for testing set is %.2f" % R2_predict_test)
     print("-----------------------------------------------------------------------------------")
+
