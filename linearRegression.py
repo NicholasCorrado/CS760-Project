@@ -19,7 +19,7 @@ class LinearRegression:
         # These are usefull
         (self.n, self.d) = self.x.shape
         # Learn the coefficients that minimize the MSE
-        self.theta_hat = self.learn()
+        self.theta_hat = self.__learn()
 
     def get_theta_hat(self):
         return self.theta_hat
@@ -35,7 +35,7 @@ class LinearRegression:
             )
         return x
 
-    def learn(self):
+    def __learn(self):
         # MSE estimation of theta_hat
         return np.linalg.inv(self.x.T @ self.x) @ self.x.T @ self.y
 
@@ -54,6 +54,7 @@ class LinearRegression:
         bucket_size = round(len(rand_indicies)/k)
 
         total_mse = 0
+        total_r_squared = 0
         for i in range(k):
             if i == k-1:
                 train_bucket_indicies = rand_indicies[:i*bucket_size]
@@ -71,10 +72,18 @@ class LinearRegression:
             test_y = self.y[test_bucket_indicies]
 
             temp_model = LinearRegression(train_x, train_y, False)
-            total_mse += (sum((test_y-temp_model.predict(test_x, False))
-                              ** 2)/test_x.shape[0])
+            sum_squared_error_prediction = sum(
+                (test_y-temp_model.predict(test_x, False))**2
+            )
+            total_mse += sum_squared_error_prediction/test_x.shape[0]
 
-        return total_mse/k
+            y_mean = sum(train_y)/len(train_y)
+            sum_squared_error_mean = sum((test_y-y_mean)**2)
+
+            total_r_squared += 1 - \
+                (sum_squared_error_prediction/sum_squared_error_mean)
+
+        return (total_mse/k, total_r_squared/k)
 
     def get_significance(self, alpha=0.05):
 
@@ -109,10 +118,21 @@ if __name__ == "__main__":
     lg = LinearRegression(x, y)
     print("Theta hat {0}".format(lg.get_theta_hat()))
 
-    print("MSE for dataset: {0}".format(
-        sum((y-lg.predict(x))**2)/x.shape[0]))
+    sum_squared_error_prediction = sum(
+        (y-lg.predict(x))**2
+    )
+    mse = sum_squared_error_prediction/x.shape[0]
 
-    print("Average MSE for k=10 fold CV: {0}".format(lg.kfold(seed=1)))
+    y_mean = sum(y)/len(y)
+    sum_squared_error_mean = sum((y-y_mean)**2)
+
+    r_squared = 1 - (sum_squared_error_prediction/sum_squared_error_mean)
+    print("MSE for dataset: {}\nR Squared for dataset: {}".format(
+        mse, r_squared))
+
+    k_fold_mse, k_fold_r2 = lg.kfold(seed=1)
+    print("Average MSE for k=10 fold CV: {}\nAverage R Squared for k=10 fold CV: {}".format(
+        k_fold_mse, k_fold_r2))
 
     test_data = np.genfromtxt("TestCase.csv", delimiter=",",
                               skip_header=1)
@@ -122,8 +142,9 @@ if __name__ == "__main__":
     # shape is nxd
     test_x = test_data[:, :5]
     print("Results for test cases:")
-    print(lg.predict(test_x))
-    print(sum((test_y-lg.predict(test_x))**2)/test_x.shape[0])
+    print("Test case predictions {}".format(lg.predict(test_x)))
+    print("MSE for test set {}".format(
+        sum((test_y-lg.predict(test_x))**2)/test_x.shape[0]))
 
     significance = lg.get_significance()
     features = ["Date", "Latitude", "Longitude",
