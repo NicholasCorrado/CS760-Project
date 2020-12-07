@@ -82,7 +82,7 @@ if __name__ == "__main__":
     # can use testCaseFunction to do prediction based on previously tree, and plot the predictions
     print("-----------------------------------------------------------------------------------")
     # testcase(test_file_name, regressionTree)
-    predictions, MSE_test = testCase(test_file, regTree)
+    predictions_regTree, MSE_test = testCase(test_file, regTree)
     print("MSE for testing set is %.2f" % MSE_test)
     R2_predict_training = predictionGoodnessOfFit(regTree, input_file)
     print("R2 for training set is %.2f" % R2_predict_training)
@@ -109,3 +109,5 @@ if __name__ == "__main__":
     print("r^2 for training set =", r2_training)
     print("test loss =", loss_test)
     print("r^2 for test set =", r2_test)
+	
+	

@@ -45,6 +45,7 @@ class Node:
             attr = getattr(node, attr_name)
             setattr(self, attr_name, attr)
 
+			
 # regression tree has root, depth and rules attributes
 class RegressionTree:
     def __init__(self):
