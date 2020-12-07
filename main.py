@@ -51,4 +51,6 @@ if __name__ == "__main__":
     print("test loss =", loss_test)
     print("r^2 for test set =", r2_test)
     print("-----------------------------------------------------------------------------------")
+    
+    # kNN predications for the test case data is stored in the variable Yhat_knn
 

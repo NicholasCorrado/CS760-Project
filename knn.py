@@ -15,8 +15,6 @@ class kNN:
                 "C:\\Nicholas\\Graduate\\Courses\\cs760\\project\\Marine_Clean_no_missing_values.csv", 
                 delimiter=',', usecols=(0,1,2,3,4,5), skiprows=1)
         
-        data = data[:300,:]
-        
         # Normalize features and target
         ranges = [np.max(col)-np.min(col) for col in data.T]
         mins = [np.min(col) for col in data.T]
@@ -295,9 +293,8 @@ class kNN:
             
         return loss/n, r2
     
-    def compute_optimal_k(self):
+    def compute_optimal_k(self, n_trials=1):
         
-        n_trials = 1
         all_losses = []
         
         for i in range(n_trials):
