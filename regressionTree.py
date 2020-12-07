@@ -8,6 +8,8 @@ import numpy as np
 from numpy import ndarray
 from numpy.random import choice, seed
 import matplotlib.pyplot as plt
+import pandas as pd
+
 
 # Node is used in regression tree which helps its built
 class Node:
@@ -117,7 +119,6 @@ class RegressionTree:
         unique = set(col)
         if len(unique) == 1:
             return node
-
         # In case of empty split.
         unique.remove(min(unique))
 
@@ -305,7 +306,7 @@ def getTreeR2(filename,depth):
     return r2_train,r2_test
 
 def getTreeMSE(filename,depth):
-    regTree = regressionTreeConstruct('Marine_Clean.csv', depth = depth,split=False, printTree = False,random_state = 200)
+    regTree = regressionTreeConstruct(filename, depth = depth,split=False, printTree = False,random_state = 200)
     X, y = load_data(filename)
     y_hat = []
     x_list = list(X)
@@ -339,25 +340,32 @@ def calMse(y, y_bar):
 
 def testCase(filename,tree):
     predictions = []
-    data = np.loadtxt(filename, skiprows=1, delimiter=',')
+    df = pd.read_csv(filename, sep=',')
+    data = np.array(df)
     X,y = data[:, 0:5],data[:,5]
     x_list = list(X)
     for x in x_list:
         predictions.append(tree.predict_one(x))
-    x_axis = []
-    for x in range(len(predictions)):
-        x_axis.append(x+1)
+    x_axis = data[:,6]
+    x_axis= list(x_axis)
     plt.plot(x_axis,predictions,'ro',label='prediction')
     plt.plot(x_axis,y,'bs',label='actual')
     plt.legend(loc="upper left")
-    plt.xlabel("Sample")
+    plt.xlabel("Sample Location")
     plt.ylabel("Total Microplastic Pieces")
     plt.show()
     mse_test = calMse(y,predictions)
     return predictions, mse_test
 
-def predictionGoodnessOfFit(tree,filename):
+def predictionGoodnessOfFitForTraining(tree,filename):
     X, y = load_data(filename)
+    r2, sse, sst = calGoodnessFit(tree, X, y)
+    return r2
+
+def predictionGoodnessOfFitForTesting(tree,filename):
+    df = pd.read_csv(filename, sep=',')
+    data = np.array(df)
+    X,y = data[:, 0:5],data[:,5]
     r2, sse, sst = calGoodnessFit(tree, X, y)
     return r2
 
@@ -371,7 +379,7 @@ if __name__ == "__main__":
     print('Generating Regression Tree')
     regTree = regressionTreeConstruct(input_file, 8) # input parameters (filename,tree max depth)
     print("-----------------------------------------------------------------------------------")
-    # evalTree to check all possible tree depth, and choose the best depth
+    # # evalTree to check all possible tree depth, and choose the best depth
     evalTree('Marine_Clean.csv')
     MSE_train = getTreeMSE(input_file,8) # getTreeMSE(filename, optimized_depth)
     print("MSE for training set is %.2f" %MSE_train)
@@ -385,8 +393,8 @@ if __name__ == "__main__":
     print("-----------------------------------------------------------------------------------")
     predictions, MSE_test = testCase(test_file,regTree) # testcase(test_file_name, regressionTree)
     print("MSE for testing set is %.2f" % MSE_test)
-    R2_predict_training = predictionGoodnessOfFit(regTree,input_file)
+    R2_predict_training = predictionGoodnessOfFitForTraining(regTree,input_file)
     print("R2 for training set is %.2f" % R2_predict_training)
-    R2_predict_test = predictionGoodnessOfFit(regTree,test_file)
+    R2_predict_test = predictionGoodnessOfFitForTesting(regTree,test_file)
     print("R2 for testing set is %.2f" % R2_predict_test)
     print("-----------------------------------------------------------------------------------")
