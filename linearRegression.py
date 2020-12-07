@@ -87,7 +87,7 @@ class LinearRegression:
 
     def get_significance(self, alpha=0.05):
 
-        half = y-(self.x @ self.theta_hat)
+        half = self.y-(self.x @ self.theta_hat)
         sigma2 = (half.T @ half)/self.n
 
         # only 1-alpha to work with this package
