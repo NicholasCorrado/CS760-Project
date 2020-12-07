@@ -317,16 +317,19 @@ def getTreeMSE(filename,depth):
 
 def crossValidation(filename, kfold,opt_depth = 8):
     mses = []
+    r2s = []
     for k in range(kfold):
         X, y = load_data(filename)
-        regTree = regressionTreeConstruct('Marine_Clean.csv', depth=opt_depth, split=True, printTree=False,random_state=k)
+        regTree = regressionTreeConstruct(filename, depth=opt_depth, split=True, printTree=False,random_state=k)
         y_hat = []
         x_list = list(X)
         for x in x_list:
             y_hat.append(regTree.predict_one(x))
         mse_cur = calMse(y, y_hat)
         mses.append(mse_cur)
-    return sum(mses) / len(mses)
+        r2_train, sse_train, sst_train = calGoodnessFit(regTree, X, y)
+        r2s.append(r2_train)
+    return sum(mses) / len(mses), sum(r2s)/len(r2s)
 
 def calMse(y, y_bar):
     summation = 0  # variable to store the summation of differences
@@ -383,18 +386,18 @@ if __name__ == "__main__":
     evalTree('Marine_Clean.csv')
     MSE_train = getTreeMSE(input_file,8) # getTreeMSE(filename, optimized_depth)
     print("MSE for training set is %.2f" %MSE_train)
-    ave_MSE_train = crossValidation(input_file,10)
+    ave_MSE_train, ave_r2 = crossValidation(input_file,10)
     print("average MSE from 10 fold cv is %.2f" %ave_MSE_train)
-    R2_train, R2_test = getTreeR2(input_file,8)
-    print("Best Model: R2 goodness of fit for trainset is %.2f" %R2_train)
-    print("Best Model: R2 goodness of fit for testset is %.2f" %R2_test)
-
+    print("average R2 from 10 fold cv is %.2f" %ave_r2)
+    # R2_train, R2_test = getTreeR2(input_file,8)
+    # print("Best Model: R2 goodness of fit for trainset is %.2f" %R2_train)
+    # print("Best Model: R2 goodness of fit for testset is %.2f" %R2_test)
+    R2_predict_training = predictionGoodnessOfFitForTraining(regTree,input_file)
+    print("R2 for training set is %.2f" % R2_predict_training)
     # can use testCaseFunction to do prediction based on previously tree, and plot the predictions
     print("-----------------------------------------------------------------------------------")
     predictions, MSE_test = testCase(test_file,regTree) # testcase(test_file_name, regressionTree)
     print("MSE for testing set is %.2f" % MSE_test)
-    R2_predict_training = predictionGoodnessOfFitForTraining(regTree,input_file)
-    print("R2 for training set is %.2f" % R2_predict_training)
     R2_predict_test = predictionGoodnessOfFitForTesting(regTree,test_file)
     print("R2 for testing set is %.2f" % R2_predict_test)
     print("-----------------------------------------------------------------------------------")
