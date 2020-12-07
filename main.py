@@ -93,7 +93,7 @@ if __name__ == "__main__":
     # kNN
     knn = kNN(
         "C:\\Nicholas\\Graduate\\Courses\\cs760\\project\\Marine_Clean_no_missing_values.csv")
-    print('Estimating optimal k for kNN regression...')
+    print('Estimating optimal k for kNN regression...\n')
     k_opt, r2_kfold, loss_kfold = knn.compute_optimal_k()
     print('\nOptimal k =', k_opt)
     print("average 10-fold validation loss =", loss_kfold)
