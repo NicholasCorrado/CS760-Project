@@ -107,5 +107,3 @@ if __name__ == "__main__":
     print("-----------------------------------------------------------------------------------")
     
     # kNN predications for the test case data is stored in the variable Yhat_knn
-
->>>>>>> 7d3a300706ac422960e375441c921619d3c9f355
