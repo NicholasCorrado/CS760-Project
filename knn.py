@@ -5,13 +5,26 @@ import matplotlib.pyplot as plt
 
 class kNN:
     
-    def __init__(self, data):
+    def __init__(self, path):
         
+        self.data = self.load()
+        
+    def load(self):
+        
+        data = np.loadtxt(
+                "C:\\Nicholas\\Graduate\\Courses\\cs760\\project\\Marine_Clean_no_missing_values.csv", 
+                delimiter=',', usecols=(0,1,2,3,4,5), skiprows=1)
+        
+        data = data[:300,:]
+        
+        # Normalize features and target
         ranges = [np.max(col)-np.min(col) for col in data.T]
         mins = [np.min(col) for col in data.T]
         ranges[-1] = 1
+    
+        data = np.array([(data.T[i]-mins[i])/ranges[i] for i in range(len(data.T))]).T
         
-        self.data = np.array([(data.T[i]-mins[i])/ranges[i] for i in range(len(data.T))]).T
+        return data
         
     def d(self, x1, x2):
         '''
@@ -326,26 +339,11 @@ class kNN:
         return k_opt, r2, avg_losses[k_opt-1]
     
     
-def load():
-    
-    data = np.loadtxt(
-            "C:\\Nicholas\\Graduate\\Courses\\cs760\\project\\Marine_Clean_no_missing_values.csv", 
-            delimiter=',', usecols=(0,1,2,3,4,5), skiprows=1)
-    
-    data = data[:300,:]
-    
-    # Normalize features and target
-    ranges = [np.max(col)-np.min(col) for col in data.T]
-    mins = [np.min(col) for col in data.T]
-    ranges[-1] = 1
 
-    data = np.array([(data.T[i]-mins[i])/ranges[i] for i in range(len(data.T))]).T
-    
-    return data
 
 if __name__ == "__main__":    
     
-    data = load()
+    
     
     knn = kNN(data)
     
