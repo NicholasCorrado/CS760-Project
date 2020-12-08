@@ -80,7 +80,7 @@ if __name__ == "__main__":
     regTree = regressionTreeConstruct(input_file, 8)
     print("-----------------------------------------------------------------------------------")
     # # evalTree to check all possible tree depth, and choose the best depth
-    evalTree(input_file, printPlot=False)
+    evalTree(input_file, printPlot=True)
     # getTreeMSE(filename, optimized_depth)
     MSE_train = getTreeMSE(input_file, 8)
     print("MSE for training set is %.2f" % MSE_train)
