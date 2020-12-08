@@ -45,7 +45,6 @@ class Node:
             attr = getattr(node, attr_name)
             setattr(self, attr_name, attr)
 
-			
 # regression tree has root, depth and rules attributes
 class RegressionTree:
     def __init__(self):
@@ -369,6 +368,7 @@ def plotPredictions(filename,list1,list2,list3):
     x_list = list(X)
     x_axis = data[:,6]
     x_axis= list(x_axis)
+    plt.figure(figsize=(20,10))
     plt.plot(x_axis,list1,'go',label='linearRegPlot')
     plt.plot(x_axis,list2,'ro',label='regTreePlot')
     plt.plot(x_axis,list3,'mo',label='kNNPlot')
@@ -420,7 +420,3 @@ if __name__ == "__main__":
     R2_predict_test = predictionGoodnessOfFitForTesting(regTree,test_file)
     print("R2 for testing set is %.2f" % R2_predict_test)
     print("-----------------------------------------------------------------------------------")
-    # list1 = [11,22,33,44,55,66,77,88,99,100]
-    # list2 = [1,2,3,4,5,6,7,8,9,10]
-    # list3 = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
-    # plotPredictions(test_file,list1,list2,list3)
