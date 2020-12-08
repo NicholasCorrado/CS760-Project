@@ -25,14 +25,15 @@ if __name__ == "__main__":
     sum_squared_error_prediction = sum(
         (y - lg.predict(x)) ** 2
     )
-    mse = sum_squared_error_prediction / x.shape[0]
+    linear_regression_train_mse = sum_squared_error_prediction / x.shape[0]
 
     y_mean = sum(y) / len(y)
     sum_squared_error_mean = sum((y - y_mean) ** 2)
 
-    r_squared = 1 - (sum_squared_error_prediction / sum_squared_error_mean)
+    linear_regression_train_r_squared = 1 - \
+        (sum_squared_error_prediction / sum_squared_error_mean)
     print("MSE for train set: {}\nR Squared for train set: {}".format(
-        mse, r_squared))
+        linear_regression_train_mse, linear_regression_train_r_squared))
 
     k_fold_mse, k_fold_r2 = lg.kfold(seed=1)
     print("Average MSE for k=10 fold CV: {}\nAverage R Squared for k=10 fold CV: {}".format(
@@ -49,8 +50,19 @@ if __name__ == "__main__":
     linear_regression_test_predictions = lg.predict(test_x)
     print("Test case predictions {}".format(
         linear_regression_test_predictions))
-    print("MSE for test set {}".format(
-        sum((test_y - lg.predict(test_x)) ** 2) / test_x.shape[0]))
+
+    sum_squared_error_prediction = sum(
+        (test_y - linear_regression_test_predictions) ** 2
+    )
+    linear_regression_test_mse = sum_squared_error_prediction / test_x.shape[0]
+
+    y_mean = sum(test_y) / len(test_y)
+    sum_squared_error_mean = sum((test_y - y_mean) ** 2)
+
+    linear_regression_test_r_squared = 1 - \
+        (sum_squared_error_prediction / sum_squared_error_mean)
+    print("MSE for test set: {}\nR Squared for test set: {}".format(
+        linear_regression_test_mse, linear_regression_train_r_squared))
 
     significance = lg.get_significance()
     features = ["Date", "Latitude", "Longitude",
@@ -64,11 +76,13 @@ if __name__ == "__main__":
     # Regression Tree
     print("-----------------------------------------------------------------------------------")
     print('Generating Regression Tree')
-    regTree = regressionTreeConstruct(input_file, 8)  # input parameters (filename,tree max depth)
+    # input parameters (filename,tree max depth)
+    regTree = regressionTreeConstruct(input_file, 8)
     print("-----------------------------------------------------------------------------------")
     # # evalTree to check all possible tree depth, and choose the best depth
-    evalTree(input_file,printPlot=False)
-    MSE_train = getTreeMSE(input_file, 8)  # getTreeMSE(filename, optimized_depth)
+    evalTree(input_file, printPlot=False)
+    # getTreeMSE(filename, optimized_depth)
+    MSE_train = getTreeMSE(input_file, 8)
     print("MSE for training set is %.2f" % MSE_train)
     ave_MSE_train, ave_r2 = crossValidation(input_file, 10)
     print("average MSE from 10 fold cv is %.2f" % ave_MSE_train)
@@ -76,11 +90,14 @@ if __name__ == "__main__":
     # R2_train, R2_test = getTreeR2(input_file,8)
     # print("Best Model: R2 goodness of fit for trainset is %.2f" %R2_train)
     # print("Best Model: R2 goodness of fit for testset is %.2f" %R2_test)
-    R2_predict_training = predictionGoodnessOfFitForTraining(regTree, input_file)
+    R2_predict_training = predictionGoodnessOfFitForTraining(
+        regTree, input_file)
     print("R2 for training set is %.2f" % R2_predict_training)
     # can use testCaseFunction to do prediction based on previously tree, and plot the predictions
     print("-----------------------------------------------------------------------------------")
-    predictions_regTree, MSE_test = testCase(test_file, regTree,printPlot=False)  # testcase(test_file_name, regressionTree)
+    # testcase(test_file_name, regressionTree)
+    predictions_regTree, MSE_test = testCase(
+        test_file, regTree, printPlot=False)
     print("MSE for testing set is %.2f" % MSE_test)
     R2_predict_test = predictionGoodnessOfFitForTesting(regTree, test_file)
     print("R2 for testing set is %.2f" % R2_predict_test)
@@ -107,4 +124,5 @@ if __name__ == "__main__":
     # kNN predications for the test case data is stored in the variable Yhat_knn
     plt.close()
 
-    plotPredictions(test_file, linear_regression_test_predictions, predictions_regTree, Yhat_knn)
+    plotPredictions(test_file, linear_regression_test_predictions,
+                    predictions_regTree, Yhat_knn)
