@@ -10,7 +10,6 @@ from numpy.random import choice, seed
 import matplotlib.pyplot as plt
 import pandas as pd
 
-
 # Node is used in regression tree which helps its built
 class Node:
     attr_names = ("avg", "left", "right", "feature", "split", "mse")
@@ -285,7 +284,7 @@ def _evalTree(filename,maxdepth,random_state):
     MSE_test = calMse(y_test, y_hat_test)
     return r2_train, r2_test, MSE_train,MSE_test
 
-def evalTree(filename):
+def evalTree(filename,printPlot=False):
     r2_train_list = []
     r2_test_list = []
     for depth in range(1,16):
@@ -293,12 +292,13 @@ def evalTree(filename):
         r2_train_list.append(r2_train)
         r2_test_list.append(r2_test)
     depth_list = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
-    plt.plot(depth_list, r2_train_list, marker='o', label = 'training fitness', markerfacecolor='blue', markersize=12, color='skyblue', linewidth=4)
-    plt.plot(depth_list, r2_test_list, marker='o', label = 'testing fitness', markerfacecolor='red', markersize=12, color='orange', linewidth=4)
-    plt.legend(loc="upper left")
-    plt.xlabel("Max Depth of Regression Tree")
-    plt.ylabel("Goodness of Fitness (R2)")
-    plt.show()
+    if printPlot == True:
+        plt.plot(depth_list, r2_train_list, marker='o', label = 'training fitness', markerfacecolor='blue', markersize=12, color='skyblue', linewidth=4)
+        plt.plot(depth_list, r2_test_list, marker='o', label = 'testing fitness', markerfacecolor='red', markersize=12, color='orange', linewidth=4)
+        plt.legend(loc="upper left")
+        plt.xlabel("Max Depth of Regression Tree")
+        plt.ylabel("Goodness of Fitness (R2)")
+        plt.show()
     return
 
 def getTreeR2(filename,depth):
@@ -341,7 +341,7 @@ def calMse(y, y_bar):
     MSE = summation / n  # dividing summation by total values to obtain average
     return MSE
 
-def testCase(filename,tree):
+def testCase(filename,tree,printPlot=False):
     predictions = []
     df = pd.read_csv(filename, sep=',')
     data = np.array(df)
@@ -351,15 +351,15 @@ def testCase(filename,tree):
         predictions.append(tree.predict_one(x))
     x_axis = data[:,6]
     x_axis= list(x_axis)
-    plt.plot(x_axis,predictions,'ro',label='prediction')
-    plt.plot(x_axis,y,'bs',label='actual')
-    plt.legend(loc="upper left")
-    plt.xlabel("Sample Location")
-    plt.ylabel("Total Microplastic Pieces")
-    plt.show()
+    if printPlot == True:
+        plt.plot(x_axis,predictions,'ro',label='prediction')
+        plt.plot(x_axis,y,'bs',label='actual')
+        plt.legend(loc="upper left")
+        plt.xlabel("Sample Location")
+        plt.ylabel("Total Microplastic Pieces")
+        plt.show()
     mse_test = calMse(y,predictions)
     return predictions, mse_test
-
 
 def plotPredictions(filename,list1,list2,list3):
     df = pd.read_csv(filename, sep=',')
@@ -368,15 +368,17 @@ def plotPredictions(filename,list1,list2,list3):
     x_list = list(X)
     x_axis = data[:,6]
     x_axis= list(x_axis)
-    plt.figure(figsize=(20,10))
+
+    plt.figure(figsize=(18,24))
     plt.plot(x_axis,list1,'go',label='linearRegPlot')
     plt.plot(x_axis,list2,'ro',label='regTreePlot')
     plt.plot(x_axis,list3,'mo',label='kNNPlot')
     plt.plot(x_axis,y,'bs',label='actual')
-    plt.legend(loc="upper left")
-    plt.xlabel("Sample Location")
-    plt.ylabel("Total Microplastic Pieces")
+    plt.legend(loc="upper left",prop={'size': 12})
+    plt.xlabel("Sample Location",fontsize=18)
+    plt.ylabel("Total Microplastic Pieces",fontsize=18)
     plt.show()
+    # plt.savefig('test-case-predictions,png')
     return
 
 def predictionGoodnessOfFitForTraining(tree,filename):
@@ -402,7 +404,7 @@ if __name__ == "__main__":
     regTree = regressionTreeConstruct(input_file, 8) # input parameters (filename,tree max depth)
     print("-----------------------------------------------------------------------------------")
     # # evalTree to check all possible tree depth, and choose the best depth
-    evalTree('Marine_Clean.csv')
+    evalTree('Marine_Clean.csv',printPlot = True)
     MSE_train = getTreeMSE(input_file,8) # getTreeMSE(filename, optimized_depth)
     print("MSE for training set is %.2f" %MSE_train)
     ave_MSE_train, ave_r2 = crossValidation(input_file,10)
@@ -415,7 +417,7 @@ if __name__ == "__main__":
     print("R2 for training set is %.2f" % R2_predict_training)
     # can use testCaseFunction to do prediction based on previously tree, and plot the predictions
     print("-----------------------------------------------------------------------------------")
-    predictions_regTree, MSE_test = testCase(test_file,regTree) # testcase(test_file_name, regressionTree)
+    predictions_regTree, MSE_test = testCase(test_file,regTree,printPlot=True) # testcase(test_file_name, regressionTree)
     print("MSE for testing set is %.2f" % MSE_test)
     R2_predict_test = predictionGoodnessOfFitForTesting(regTree,test_file)
     print("R2 for testing set is %.2f" % R2_predict_test)

@@ -4,8 +4,6 @@ from linearRegression import *
 from regressionTree import *
 from knn import *
 
-
-
 if __name__ == "__main__":
     input_file = 'Marine_Clean.csv'
     test_file = 'TestCase.csv'
@@ -69,7 +67,7 @@ if __name__ == "__main__":
     regTree = regressionTreeConstruct(input_file, 8)  # input parameters (filename,tree max depth)
     print("-----------------------------------------------------------------------------------")
     # # evalTree to check all possible tree depth, and choose the best depth
-    evalTree('Marine_Clean.csv')
+    evalTree(input_file,printPlot=False)
     MSE_train = getTreeMSE(input_file, 8)  # getTreeMSE(filename, optimized_depth)
     print("MSE for training set is %.2f" % MSE_train)
     ave_MSE_train, ave_r2 = crossValidation(input_file, 10)
@@ -82,7 +80,7 @@ if __name__ == "__main__":
     print("R2 for training set is %.2f" % R2_predict_training)
     # can use testCaseFunction to do prediction based on previously tree, and plot the predictions
     print("-----------------------------------------------------------------------------------")
-    predictions_regTree, MSE_test = testCase(test_file, regTree)  # testcase(test_file_name, regressionTree)
+    predictions_regTree, MSE_test = testCase(test_file, regTree,printPlot=False)  # testcase(test_file_name, regressionTree)
     print("MSE for testing set is %.2f" % MSE_test)
     R2_predict_test = predictionGoodnessOfFitForTesting(regTree, test_file)
     print("R2 for testing set is %.2f" % R2_predict_test)
@@ -108,5 +106,5 @@ if __name__ == "__main__":
     print("-----------------------------------------------------------------------------------")
     # kNN predications for the test case data is stored in the variable Yhat_knn
     plt.close()
-    
-    plotPredictions(test_file,linear_regression_test_predictions,predictions_regTree,Yhat_knn)
+
+    plotPredictions(test_file, linear_regression_test_predictions, predictions_regTree, Yhat_knn)
