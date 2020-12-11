@@ -299,6 +299,7 @@ def evalTree(filename,printPlot=False):
         plt.xlabel("Max Depth of Regression Tree")
         plt.ylabel("Goodness of Fitness (R2)")
         plt.show()
+        plt.savefig('depth.png')
     return
 
 def getTreeR2(filename,depth):
@@ -378,7 +379,7 @@ def plotPredictions(filename,list1,list2,list3):
     plt.xlabel("Sample Location",fontsize=18)
     plt.ylabel("Total Microplastic Pieces",fontsize=18)
     plt.show()
-    # plt.savefig('test-case-predictions,png')
+    plt.savefig('test-case-predictions.png')
     return
 
 def predictionGoodnessOfFitForTraining(tree,filename):
