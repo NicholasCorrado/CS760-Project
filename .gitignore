@@ -3,3 +3,8 @@
 **/*.csv
 
 **/__pycache__
+
+*.pdf
+
+*.png
+*.jpg
