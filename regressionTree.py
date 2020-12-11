@@ -397,8 +397,6 @@ def predictionGoodnessOfFitForTesting(tree,filename):
 if __name__ == "__main__":
     input_file ='Marine_Clean.csv'
     test_file = 'TestCase.csv'
-    # Linear Regression
-
     # Regression Tree
     print("-----------------------------------------------------------------------------------")
     print('Generating Regression Tree')
