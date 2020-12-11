@@ -323,7 +323,7 @@ class kNN:
         plt.ylabel("Average Loss (averaged over 5 runs of 10-fold validation)")
         plt.xlabel("k (number of neighbors used to predict target)")
         plt.title("kNN Average Loss vs. k")
-        plt.savefig('loss-vs-k.pdf')
+        plt.savefig('loss-vs-k.png')
         
         k_opt = np.argmin(avg_losses)+1        
         return k_opt, r2, avg_losses[k_opt-1]
