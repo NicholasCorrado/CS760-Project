@@ -28,20 +28,24 @@ Python 3
 
 ## Regression Decision Tree Model
 1. tree = regressionTreeConstruct(filename, depth = 8, split=False, printTree = True)
-We can built the regression tree by import the csv data file. 
-The default max depth of tree is setup to 8, and user can adjust it to any reasonable depth.
-The user can choose to further split the data into training and testing for validation.
-The user can select printTree to print the split rules to console.
+	We can built the regression tree by import the csv data file. 
+	The default max depth of tree is setup to 8, and user can adjust it to any reasonable depth.
+	The user can choose to further split the data into training and testing for validation.
+	The user can select printTree to print the split rules to console.
 
-2. evalTree(filename)
-Evaluate the tree generated for different depth. 
-The goodness of fit (r2 = 1 - sse/sst) would be plotted with training and testing dataset based on 9:1 ratio.
-The user can choose the best fit decision tree models with optimal tree depth.
+2. evalTree(filename, printPlot=True)
+	Evaluate the tree generated for different depth. 
+	The goodness of fit (r2 = 1 - sse/sst) would be plotted with training and testing dataset based on 9:1 ratio.
+	The user can choose the best fit decision tree models with optimal tree depth.
 
 3. predictions = testCase(filename,tree)
-Can use the selected regression tree model to predict the microplastic content in test cases.
-The predicted content would be ploted.
-
+	Can use the selected regression tree model to predict the microplastic content in test cases.
+	The predicted content would be ploted.
+R2_predict_training = predictionGoodnessOfFitForTraining(
+        regTree, input_file)
+	The R2 can be calculated using predictionGoodnessOfFitForTraining by passing regTree and training dataset
+R2_predict_test = predictionGoodnessOfFitForTesting(regTree, test_file)
+	The prediction results can be calculated by using the regTree and test_data_file
 
 ## Nearest Neighbor Model
 
