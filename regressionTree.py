@@ -298,8 +298,8 @@ def evalTree(filename,printPlot=False):
         plt.legend(loc="upper left")
         plt.xlabel("Max Depth of Regression Tree")
         plt.ylabel("Goodness of Fitness (R2)")
-        plt.show()
-        plt.savefig('depth.png')
+        # plt.show()
+        plt.savefig('depth.png',dpi=100)
     return
 
 def getTreeR2(filename,depth):
@@ -378,8 +378,8 @@ def plotPredictions(filename,list1,list2,list3):
     plt.legend(loc="upper left",prop={'size': 12})
     plt.xlabel("Sample Location",fontsize=18)
     plt.ylabel("Total Microplastic Pieces",fontsize=18)
-    plt.show()
-    plt.savefig('test-case-predictions.png')
+    # plt.show()
+    plt.savefig('test-case-predictions.png',dpi=100)
     return
 
 def predictionGoodnessOfFitForTraining(tree,filename):
