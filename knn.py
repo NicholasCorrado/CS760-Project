@@ -254,7 +254,8 @@ class kNN:
             Yhat[i] = yhat
             loss += (y-yhat)**2
         
-        r2 = 1 - loss/np.sum(Ytest**2)
+        Yavg = np.average(Y)
+        r2 = 1 - loss/np.sum((Ytest-Yavg)**2)
         
         return loss/n, r2, Yhat
             
@@ -287,7 +288,8 @@ class kNN:
             yhat = self.__compute_yhat(X[i], k, X, Y)
             loss += (Y[i] - yhat)**2
             
-        r2 = 1 - loss/np.sum(Y**2)
+        Yavg = np.average(Y)
+        r2 = 1 - loss/np.sum((Y-Yavg)**2)
             
         return loss/n, r2
     
@@ -314,7 +316,8 @@ class kNN:
         
         # compute r squared
         Y = self.data[:,-1]
-        r2 = 1 - np.sum(avg_losses)/np.sum(Y**2)
+        Yavg = np.average(Y)
+        r2 = 1 - np.sum(avg_losses)/np.sum((Y-Yavg)**2)
     
         
         plt.rcParams.update({'font.size': 28})
